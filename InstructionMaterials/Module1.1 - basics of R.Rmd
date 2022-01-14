@@ -1,0 +1,365 @@
+---
+title: "Module 1.1 - Intro to R"
+output: html_document
+---
+
+#### Basics of R: variables, and data types (number, string, boolean)
+Variables are used to store values. Core types are numerical, strings, and booleans. 
+
+```{r My chunck}
+x=5
+y<-1 # same as =, some people like it better since it shows assignment
+
+animal<-"cat"
+
+isDog=FALSE
+
+# to view a value, you can either output it's value by allowing R to print it
+x
+
+# but if you have many outputs, they might not be printed out. 
+# To make sure you print something, use print()
+print(y)
+
+# you can even make it nicer by coverting variable to string and combining strings togeter: 
+paste(x)
+paste("X value is:",x)
+```
+
+##### Exercise 1. 
+Create a new variable z that has the value of 2*y-x and print it out
+```{r}
+
+```
+
+
+
+#### Basics of R: vectors and matrices #1
+vectors are used to store a bunch of values
+vectors can be accessed through indexing
+```{r}
+legs<-c(4,4,8,6)
+legs[c(3,4)]
+legs[1]
+
+```
+
+##### Exercise 2. 
+Print the value of the third item in legs
+```{r}
+
+```
+
+#### Basics of R: vectors and matrices #2
+you can also give specific names to positions in a vector (and many other things) using names
+```{r}
+specie<-c("cat","dog","spider","ant")
+names(legs)=specie
+legs["spider"]
+
+```
+
+##### Exercise 3. 
+Print the number of legs ants have
+```{r}
+
+```
+
+
+#### Basics of R: vectors and matrices #3
+operations between vectors are done by element. 
+```{r}
+eyes<-c(2,2,8,2)
+eye_to_leg=eyes/legs
+mean(eye_to_leg)
+
+# watch out for these warnings!
+eyes/c(1,3,4)
+
+```
+
+##### Exercise 4. 
+Create a new vector with an attribute of your choice (how scary they are?)
+print out the attribute of spider from your vector
+```{r}
+
+```
+
+#### Basics of R: vectors and matrices #4
+accessing vector via multiple indexes or logical operations
+```{r}
+eye_to_leg[c(1,2)]
+
+is_mammal=c(TRUE,TRUE,FALSE,FALSE)
+eye_to_leg[is_mammal]
+
+mean(eye_to_leg[is_mammal])
+
+# you can output the indexes of items that are TRUE using which
+which(is_mammal)
+
+# you can also create these boolean vector using logical operations
+# note the difference betweeb = and ==
+has_two_eyes = eyes==2
+
+
+```
+
+
+##### Exercise 5
+Create a new boolean vector more_than_four_legs and use it to print the names of species with >4 legs. Do it twice, once using the original vector species and once using the names() function
+```{r}
+
+```
+
+
+#### Basics of R: vectors and matrices 
+matrices are just vectors forces into rectangular shape
+```{r}
+m<-matrix(1:9,byrow=TRUE,nrow=3)
+rownames(m)=c("t1","t2","t3")
+colnames(m)=c("p1","p2","p3")
+
+# print m
+print(m)
+
+# access elements of m - what are the following three lines doing? 
+m[2]
+m[2,]
+m[,2]
+```
+
+##### Exercise 6
+print out the third item of the second row
+print all the items that are p3
+```{r}
+
+```
+
+
+
+#### Basics of R: Factors
+factors are another "core type" in R that is useful for stats
+```{r}
+cls <- c("Mammal","Mammal","Arachnid","Insecta")
+cls_factor <- factor(cls)
+levels(cls_factor)
+
+# function by applies function to groups of elements in vectors (and other data structures) by factor
+by(eye_to_leg,cls_factor,mean)
+
+
+```
+
+##### Exercise 7
+Create new factor with two levels "big" and "small" and calculate the maximum number of legs per group
+```{r}
+
+```
+
+
+#### Basics of R: Data frames #1
+```{r}
+# a built-in R datasets
+mtcars
+
+# another dataset from the web
+library(palmerpenguins)
+
+# you can look at a few rows 
+head(penguins)
+
+# specify the number of rows you want to look at
+head(penguins,3)
+
+# or look at the structure of the dataframe
+str(penguins)
+
+# you can access elements in a dataframe just like they where a matrix
+penguins[2,4]
+penguins[2,]
+
+# or get specific items from one column using it's name
+penguins$sex[6:10]
+
+```
+
+##### Exercise 8
+Calculate the average penguin weight by island 
+```{r}
+
+```
+
+
+#### Basics of R: Data frames #3
+how to define your own dataframe
+```{r}
+animals <- data.frame(eyes=eyes,legs=legs,ratio=eye_to_leg,class=cls_factor)
+animals
+
+```
+
+Basics of R: Data frames #4
+data can have "wide" and "long" structures, try to use long whenever you can
+```{r} 
+wide <- read.table(textConnection(
+"Gene    Control Drug1   Drug2   Drug3   Drug4
+Actin     20,249  21,352  22,532  23,557  24,555
+Tubulin   8,097   8,986   10,058  11,123  12,246"), header=TRUE)
+
+wide
+
+library(reshape2)
+long <- melt(wide,id.vars="Gene")
+long
+colnames(long)<-c("Gene","Treat","Effect")
+long
+
+
+# for the most part, R prefers long  (since it can support more than 2D data...)
+```
+
+##### Exercise 9
+Create a new column for fold-increase compared to control
+calculate the max drug effect for each gene (consider making it a factor...)
+```{r}
+
+```
+
+
+#### R basics: lists
+a generalization of vector - list can include any element
+note the double [[]] syntax
+```{r}
+my_list <- list("cat",7,1:3)
+my_list
+
+my_list[1]
+
+my_list[[1]]
+
+```
+
+##### Exercise 10
+Create a list that combines a string, a 3x3 matrix, and two scalars
+add names to your items
+print the product of the 3rd and 4th elements on your list
+```{r}
+
+```
+
+
+#### R basics: for loops
+A loop is super useful way to repeat actions. But often you don't want to repeat the exact same thing, but rather repeat the same action on each element in a list or array. A for loop does that by running the same block (everything between {}) but each time a single variable changes its value. 
+
+```{r}
+for (i in 1:length(my_list)) {
+  print(my_list[[i]])
+}
+
+for (year in 2010:2015){
+  print(paste("The year is", year))
+}
+```
+
+same loop but with indexing (preferred)
+```{r} 
+years=2010:2015
+for (i in 1:length(years)) {
+  print(paste("The year is", years[i]))
+}
+```
+
+
+##### Exercise 10
+Create an array  with 4 rows and 3 columns. 
+Fill it up with random numbers (check out rnorm). 
+Use a single for loop to print all items - in what order does it print them? 
+Use a double loop to print 
+```{r}
+
+```
+
+
+#### R basics: Logicals statements and flow control
+Flow control allows conditional execution of commands. 
+First lets look at logical expression: 
+```{r}
+# simple logical 
+istrue = 5 > 3
+istrue
+
+# not
+nottrue = !istrue
+nottrue
+
+# OR
+istrue = 5 < 3 || 2 < 3
+istrue
+
+# AND
+isfalse = 5 < 3 && 2 < 3
+isfalse
+
+# & vs &&
+isfalse = 5 < 3 & 2 < 3
+isfalse
+
+a=c(1,1)
+b=c(2,2)
+a>1 && b>1 
+
+```
+
+
+These logical can be used to evaluate code in a conditional manner using if/else statements
+```{r}
+x=5
+y=4
+if (x<y) {
+  print("X < Y")
+} else {
+  print("Y >= X")
+}
+```
+
+
+##### Exercise 11 
+Write a for loop over the numbers 1-10 and print even/odd statements. 
+hint: look at the operator %%
+```{r}
+
+```
+
+#### Basics of R: Functions
+functions are very important, they are just an extension of the language you wrote
+they need to have inputs and output (return)
+```{r}
+mymean = function(myvector) {
+  avg=mean(myvector)
+  return(avg)
+}
+
+x<-rnorm(100)
+mymean(x)
+if (mean(x) == mymean(x)) {
+  print("this makes sense")
+} else {
+  print("The world is crazy!")  
+}
+
+```
+
+
+##### Exercise 12
+Create a function that gets two inputs, checks that they are numeric scalar (look up is.numeric() and length()) and returns their product.  
+```{r}
+
+```
+
+##### Exercise 13
+Update your function to return product, mean, sum of the two inputs. How can you return more than one thing from a function? 
+```{r}
+
+```
+

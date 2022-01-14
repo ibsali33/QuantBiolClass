@@ -1,0 +1,92 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+ 
+Generate some random time series
+```{r}
+T=1:3600
+R=sin(T/300)
+O=R+rnorm(length(T))
+plot(T,O)
+lines(T,R,col='red')
+```
+
+Simple moving average (kernel smoothing)
+```{r}
+bS=ksmooth(T,O,kernel = "box")
+plot(T,O)
+lines(T,R,col='red')
+lines(T,bS$y,col='blue')
+```
+
+Simple moving average (kernel smoothing)
+```{r}
+bS=ksmooth(T,O,kernel = "box",bandwidth = 60)
+plot(T,O)
+lines(T,R,col='red')
+lines(T,bS$y,col='blue')
+
+plot(T,R,type = "line",col="red")
+lines(T,bS$y,col='blue')
+```
+
+Simple moving average (kernel smoothing)
+```{r}
+bw=c(1,5,10,25,50,100,250,500,1000,2000)
+for (i in 1:length(bw)) {
+  nS=ksmooth(T,O,kernel = "normal",bandwidth = bw[i])
+  plot(T,R,type = "l",col="red",main = paste("BW=",bw[i]))
+  lines(T,nS$y,col='blue')
+}
+```
+
+True time series anbalysis ()
+
+```{r}
+births <- scan("http://robjhyndman.com/tsdldata/data/nybirths.dat")
+birthstimeseries <- ts(births, frequency=12, start=c(1946,1))
+plot.ts(birthstimeseries)
+```
+
+Decompose to components
+```{r}
+birthstimeseriescomponents <- decompose(birthstimeseries)
+plot(birthstimeseriescomponents)
+```
+
+Remove seasonal / trend component
+```{r}
+birthstimeseriesseasonallyadjusted <- birthstimeseries - birthstimeseriescomponents$seasonal
+plot(birthstimeseriesseasonallyadjusted)
+
+birthstimeseriesdetrended <- birthstimeseries - birthstimeseriescomponents$trend
+plot(birthstimeseriesdetrended)
+
+```
+
+Autocorrelation - demo
+```{r}
+shifts=seq(1,10,1)
+r=array(dim=length(shifts))
+B=array(birthstimeseriesdetrended)
+for (i in 1:length(shifts)) {
+  plot(B[10:100],type="l")
+  lines(B[shifts[i]+(10:100)],col="red")
+  r[i]=cor(B[10:100],B[shifts[i]+(10:100)])
+}
+plot(shifts,r)
+```
+
+
+Autocorrelation - as a function
+```{r}
+
+ac = acf(birthstimeseriesdetrended, lag.max=50,na.action = na.pass)
+
+```
+
+

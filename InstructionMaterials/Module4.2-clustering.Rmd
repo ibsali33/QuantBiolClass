@@ -1,0 +1,192 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+# mateiral from http://www.sthda.com/english/wiki/print.php?id=234
+
+Load data
+```{r}
+# Load data
+data("USArrests")
+my_data <- USArrests
+
+# Remove any missing value (i.e, NA values for not available)
+my_data <- na.omit(my_data)
+
+# Scale variables
+my_data <- scale(my_data)
+
+# View the firt 3 rows
+head(my_data, n = 3)
+```
+
+Install & load packages
+```{r}
+# Install factoextra & cluster if needed
+if(!require(factoextra)) install.packages("factoextra")
+if(!require(cluster)) install.packages("cluster")
+
+#Loading required packages
+library("cluster")
+library("factoextra")
+```
+
+plot distance as heat map
+```{r}
+res.dist <- get_dist(USArrests, stand = TRUE, method = "pearson")
+
+fviz_dist(res.dist, 
+   gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+
+
+res.dist2 <- get_dist(USArrests, stand = TRUE, method = "euclidean")
+
+fviz_dist(res.dist2, 
+   gradient = list(low = "#E134EB", mid = "white", high = "#f0ec13"))
+
+```
+
+kmeans - determine number of clusters
+```{r}
+fviz_nbclust(my_data, kmeans, nstart = 25,  method = "gap_stat", nboot = 50)
+fviz_nbclust(my_data, kmeans, nstart = 25,  method = "silhouette")
+```
+
+look at clustering results 
+```{r}
+km.res <- kmeans(my_data, 4, nstart = 25)
+fviz_cluster(km.res, data = my_data, ellipse.type = "convex")+theme_minimal()
+
+km.res <- kmeans(my_data, 2, nstart = 25)
+fviz_cluster(km.res, data = my_data, ellipse.type = "convex")+theme_minimal()
+
+```
+
+Alternative to Kmeans PAM - partition around mediod - similar idea just uses medians and not means
+```{r}
+library("cluster")
+pam.res <- pam(my_data, 4)
+
+# Visualize
+fviz_cluster(pam.res)
+```
+
+Hierarchical clustering 
+```{r}
+# Compute dissimilarity matrix
+d <- dist(my_data, method = "euclidean")
+# d<- get_dist(USArrests, stand = TRUE, method = "pearson")
+
+# Hierarchical clustering using Ward's method
+res.hc <- hclust(d, method = "ward.D2" )
+
+# Cut tree into 4 groups
+grp <- cutree(res.hc, k = 4)
+
+# Visualize
+plot(res.hc, cex = 0.6) # plot tree
+rect.hclust(res.hc, k = 4, border = 2:5) # add rectangle
+```
+
+Alternative code to do the smae thing
+```{r}
+res <- hcut(USArrests, k = 4, stand = TRUE)
+
+# Visualize
+fviz_dend(res, rect = TRUE, cex = 0.5,
+          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
+```
+Change linkage method
+```{r}
+res <- hcut(USArrests, k = 4, stand = TRUE,hc_method ="single")
+
+# Visualize
+fviz_dend(res, rect = TRUE, cex = 0.5,
+          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
+```
+
+```{r}
+res <- hcut(USArrests, k = 4, stand = TRUE,hc_method ="complete")
+
+# Visualize
+fviz_dend(res, rect = TRUE, cex = 0.5,
+          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
+```
+
+```{r}
+res <- hcut(USArrests, k = 4, stand = TRUE,hc_method ="average")
+
+# Visualize
+fviz_dend(res, rect = TRUE, cex = 0.5,
+          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
+```
+
+```{r}
+library("RColorBrewer")
+col <- colorRampPalette(brewer.pal(4, "RdYlBu"))(256)
+heatmap(my_data, scale = "none", col =  col)
+```
+
+```{r}
+library("pheatmap")
+pheatmap(my_data, cutree_rows = 4,fontsize_row=6)
+```
+
+```{r}
+# Load the data
+library("MASS")
+data("geyser")
+
+# Scatter plot
+library("ggpubr")
+ggscatter(geyser, x = "duration", y = "waiting")+
+  geom_density2d() # Add 2D density
+```
+
+```{r}
+library(mclust)
+scl_geyser=scale(geyser)
+mc <- Mclust(scl_geyser)  
+
+```
+
+Fit mixture of gaussian model to the data using model selection procedure
+```{r}
+# BIC values used for choosing the number of clusters
+fviz_mclust(mc, "BIC", palette = "jco")
+# Classification: plot showing the clustering
+fviz_mclust(mc, "classification", geom = "point", 
+            pointsize = 1.5, palette = "jco")
+```
+
+
+```{r}
+data("multishapes")
+df <- multishapes[, 1:2]
+set.seed(123)
+km.res <- kmeans(df, 5, nstart = 25)
+fviz_cluster(km.res, df,  geom = "point", 
+             ellipse= FALSE, show.clust.cent = FALSE,
+             palette = "jco", ggtheme = theme_classic())
+```
+
+DBSCAN: clustering where distances must pass through areas with point density < eps
+```{r}
+# Load the data 
+data("multishapes", package = "factoextra")
+df <- multishapes[, 1:2]
+
+# Compute DBSCAN using fpc package
+library("fpc")
+set.seed(123)
+db <- fpc::dbscan(df, eps = 0.15, MinPts = 5)
+
+# Plot DBSCAN results
+library("factoextra")
+fviz_cluster(db, data = df, stand = FALSE,
+             ellipse = FALSE, show.clust.cent = FALSE,
+             geom = "point",palette = "jco", ggtheme = theme_classic())
+```

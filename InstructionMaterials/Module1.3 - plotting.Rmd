@@ -1,0 +1,372 @@
+---
+title: "Module 1.4 ploting"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+x = rnorm(50)
+plot(x)
+
+```
+
+Adding lines to plot
+```{r}
+plot(x)
+lines(1:50,rep(0,50))
+```
+
+Add many things to a plot
+```{r}
+plot(x)
+lines(1:50,rep(0,50))
+lines(x, col = "green4", lty = "dotted") # low level - do not create a new plot
+points(x, bg = "limegreen", pch = 21)
+```
+
+Other plot types - the boxplot
+```{r}
+n=10
+g=gl(n, 100, n*100) #gl - generate levels (factors)
+
+print(length(g))
+levels(g)
+```
+
+```{r}
+x=rnorm(n*100) + sqrt(as.numeric(g))
+x_list = split(x,g) # makes a list from x based on g
+
+# boxplot gets
+boxplot(x_list)
+
+```
+
+Bar plot
+```{r}
+avg=by(x,g,mean)
+avg=as.numeric(avg)
+barplot(avg,ylim=c(0,4))
+```
+
+Adjust axis
+```{r}
+avg=by(x,g,mean)
+avg=as.numeric(avg)
+barplot(avg,ylim=c(0,14))
+
+```
+
+Example from r-blogger (https://www.r-bloggers.com/some-basics-for-base-graphics/)
+```{r}
+par(mfrow = c(1,2))                    # Put 2 plots on the same device
+plot(mtcars$disp,mtcars$mpg) 
+
+plot(mtcars$disp,mtcars$mpg,
+     main = "MPG vs. Displacement",    # Add a title
+     type = "p",
+     col = "grey",                     # Change the color of the points
+     pch = 16,                         # Change the plotting symbol  see help(points)
+     cex = 1,                          # Change size of plotting symbol     
+     xlab = "Displacement (cu. in)",   # Add a label on the x-axis
+     ylab = "Miles per Gallon",        # Add a label on the y-axis
+     bty = "n",                        # Remove the box around the plot
+     #asp = 1,                         # Change the y/x aspect ratio see help(plot)
+     font.axis = 1,                    # Change axis font to bold italic
+     col.axis = "black",               # Set the color of the axis
+     xlim = c(85,500),                 # Set limits on x axis
+     ylim = c(10,35),                  # Set limits on y axis
+     las=1)                            # Make axis labels parallel to x-axis
+
+abline(lm(mtcars$mpg ~ mtcars$disp),                 # Add regression line y ~ x
+       col="red",                      # regression line color
+       lty = 2,                        # use dashed line
+       lwd = 2)                        # Set thickness of the line
+
+lines(lowess(mtcars$mpg ~ mtcars$disp),              # Add lowess line y ~ x
+      col="dark blue",                 # Set color of lowess line
+      lwd= 2)                          # Set thickness of the lowess line
+ 
+leg.txt <- c("red = lm", "blue = lowess") # Text for legend
+legend(list(x = 180,y = 35),           # Set location of the legend
+       legend = leg.txt,               # Specify text 
+       col = c("red","dark blue"),     # Set colors for legend
+       lty = c(2,1),                   # Set type of lines in legend
+       merge = TRUE)                   # merge points and lines
+
+```
+
+Unicorn histogram example from: Susan E. Johnston (https://rstudio-pubs-static.s3.amazonaws.com/7953_4e3efd5b9415444ca065b1167862c349.html)
+```{r}
+pth="~/Desktop/RBaseGraphics/";
+fullfilename=file.path(pth,"unicorns.txt")
+unicorns<-read.table(fullfilename,header=T)
+head(unicorns)
+str(unicorns)
+
+#~~ Basic histogram of unicorn birthweight and longevity using hist()
+
+hist(unicorns$birthweight)            # normal distribution
+hist(unicorns$longevity)              # poisson distribution
+
+#~~ Specify the number of cells for the histogram using: breaks = N
+
+hist(unicorns$birthweight, breaks = 40)
+hist(unicorns$birthweight, breaks = c(0,1,2,3,4,5,6,7))
+hist(unicorns$birthweight, breaks = c(0,1,2,3,4,7))
+
+#~~ Relabel the x-axis using: xlab = "Text"
+
+hist(unicorns$birthweight, breaks = 40, xlab = "Birth Weight")
+
+#~~ Relabel the main title using: main = "Text"     
+
+hist(unicorns$birthweight, breaks = 40, xlab = "Birth Weight", main = "Histogram of Unicorn Birth Weight")
+
+#~~ The lines start to get too long. When there is a comma, R knows that there is more
+#   information on the next line!
+
+hist(unicorns$birthweight,
+     breaks = 40,
+     xlab = "Birth Weight",
+     main = "Histogram of Unicorn Birth Weight")
+
+#~~ The y-axis stops short of the highest value in the histogram.
+#   Lets specify new limits using: ylim = c(minimum, maximum)
+
+hist(unicorns$birthweight,
+     breaks = 40,
+     xlab = "Birth Weight", 
+     main = "Histogram of Unicorn Birth Weight",
+     ylim = c(0,80))
+
+#~~ FINAL PLOT:
+
+hist(unicorns$birthweight,                            # x value
+     breaks = 40,                                     # number of cells
+     xlab = "Birth Weight",                           # x-axis label
+     main = "Histogram of Unicorn Birth Weight",      # plot title
+     ylim = c(0,80))                                  # limits of the y axis (min,max)
+```
+
+Pair - complex plots
+```{r}
+data(iris)
+head(iris)
+
+pairs(iris)
+
+# This doesn't tell us much about the species differences. We can tell R
+# to plot using a different colour for the three species of iris:
+
+pairs(iris, col = iris$Species)
+
+
+#~~ Sepal.Length and Petal.Length look interesting! Let's start by looking at that.
+#   Again, we will specify colour as the Species.
+
+plot(iris$Sepal.Length, iris$Petal.Length, col = iris$Species)
+
+# These points are difficult to see! Let's pick some different ones using "pch"
+
+plot(iris$Sepal.Length, iris$Petal.Length, col = iris$Species, pch = 15)
+
+# lets settle on solid circles (pch = 16)
+plot(iris$Sepal.Length, iris$Petal.Length, col = iris$Species, pch = 16)
+
+# we can change the size of the points with "cex"
+
+plot(iris$Sepal.Length, iris$Petal.Length, col = iris$Species, pch = 16, cex = 2)
+
+#~~ It's difficult to tell these points apart, so perhaps we should make a legend.
+#   This is one of the major drawbacks with R.
+#   iris$Species is a factor, and R will automatically order factors in alphabetical order.
+
+levels(iris$Species)
+
+# Therefore, setosa, versicolor and virginica will correspond to 1, 2 and 3 on the 
+# plot default colours. Keep this in mind for the next part!
+
+legend(x = 4.5, y = 7, legend = levels(iris$Species), col = c(1:3), pch = 16)
+
+# FINAL PLOT
+
+plot(iris$Sepal.Length, iris$Petal.Length,        # x variable, y variable
+     col = iris$Species,                          # colour by species
+     pch = 16,                                    # type of point to use
+     cex = 2,                                     # size of point to use
+     xlab = "Sepal Length",                       # x axis label
+     ylab = "Petal Length",                       # y axis label
+     main = "Flower Characteristics in Iris")     # plot title
+
+legend (x = 4.5, y = 7, legend = levels(iris$Species), col = c(1:3), pch = 16)
+# legend with titles of iris$Species and colours 1 to 3, point type pch at coords (x,y)
+
+```
+
+
+
+########### now with ggplot2
+
+```{r}
+# Setup
+options(scipen=999)  # turn off scientific notation like 1e+06
+library(ggplot2)
+data("midwest", package = "ggplot2")  # load the data
+# midwest <- read.csv("http://goo.gl/G1K41K") # alt source 
+
+# Init Ggplot
+ggplot(midwest, aes(x=area, y=poptotal))  # area and poptotal are columns in 'midwest'
+```
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + geom_point()
+```
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() 
+g = g + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+plot(g)
+```
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+
+# Zoom in without deleting the points outside the limits. 
+# As a result, the line of best fit is the same as the original plot.
+g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
+plot(g1)
+```
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+
+g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
+
+# Add Title and Labels
+g1 + labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+
+# or
+
+#g1 + ggtitle("Area Vs Population", subtitle="From midwest dataset") + xlab("Area") + ylab("Population")
+```
+
+```{r}
+# Full Plot call
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm") + 
+  coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+```
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point(col="steelblue", size=3) +   # Set static color and size for points
+  geom_smooth(method="lm", col="firebrick") +  # change the color of line
+  coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+```
+
+```{r}
+gg <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point(aes(col=state), size=3) +  # Set color to vary based on state categories.
+  geom_smooth(method="lm", col="firebrick", size=2) + 
+  coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+plot(gg)
+```
+```{r}
+gg + theme(legend.position="None")  # remove legend
+```
+
+```{r}
+gg + scale_colour_brewer(palette = "Set1")  # change color palette
+gg + theme_dark()
+```
+
+```{r}
+# Base plot
+gg <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point(aes(col=state), size=3) +  # Set color to vary based on state categories.
+  geom_smooth(method="lm", col="firebrick", size=2) + 
+  coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+# Change breaks
+gg + scale_x_continuous(breaks=seq(0, 0.1, 0.01))
+
+```
+
+
+```{r}
+# Base plot
+gg <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point(aes(col=state), size=3) +  # Set color to vary based on state categories.
+  geom_smooth(method="lm", col="firebrick", size=2) + 
+  coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+
+gg <- gg + scale_x_continuous(breaks=seq(0, 0.1, 0.01))
+gg + theme_bw() + labs(subtitle="BW Theme")
+gg + theme_classic() + labs(subtitle="Classic Theme")
+```
+
+```{r}
+data(mpg, package="ggplot2")
+# mpg <- read.csv("http://goo.gl/uEeRGu")
+
+mpg_select <- mpg[mpg$manufacturer %in% c("audi", "ford", "honda", "hyundai"), ]
+
+# Scatterplot
+theme_set(theme_bw())  # pre-set the bw theme.
+g <- ggplot(mpg_select, aes(displ, cty)) + 
+  labs(subtitle="mpg: Displacement vs City Mileage",
+       title="Bubble chart")
+
+g + geom_jitter(aes(col=manufacturer, size=hwy)) + 
+  geom_smooth(aes(col=manufacturer), method="lm", se=F)
+```
+
+
+```{r}
+library(ggExtra)
+data(mpg, package="ggplot2")
+# mpg <- read.csv("http://goo.gl/uEeRGu")
+
+# Scatterplot
+theme_set(theme_bw())  # pre-set the bw theme.
+mpg_select <- mpg[mpg$hwy >= 35 & mpg$cty > 27, ]
+g <- ggplot(mpg, aes(cty, hwy)) + 
+  geom_count() + 
+  geom_smooth(method="lm", se=F)
+
+
+ggMarginal(g, type = "histogram", fill="transparent")
+g
+```
+
+Another example for histograms
+```{r}
+
+# Plot
+g <- ggplot(mpg, aes(cty))
+g + geom_density(aes(fill=factor(cyl)), alpha=0.8) + 
+    labs(title="Density plot", 
+         subtitle="City Mileage Grouped by Number of cylinders",
+         caption="Source: mpg",
+         x="City Mileage",
+         fill="# Cylinders")
+```
+
+
+```{r}
+xy=array(rnorm(2000),dim=c(1000,2))
+xy=data.frame(x=xy[,1],y=xy[,2])
+ggplot(data=xy,aes(x=x,y=y)) + geom_point() + scale_x_continuous(breaks = c(-1,0,1))
+
+```
+
+

@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+Some of the material below is from the book: "Practical Guide to Cluster Analysis in R"
+
+Install package if needed and load 
+```{r}
+library(factoextra)
+library(ggplot2)
+library(GGally)
+library(umap)
+```
+
+Look at the data
+```{r}
+data(decathlon2)
+head(decathlon2)
+ggp=ggpairs(decathlon2)
+print(ggp,progress=FALSE)
+```
+
+Make a new dataframe that only has the stuff we care about and do PCA
+```{r}
+decathlon2.active <- decathlon2[, 1:10]
+res.pca <- prcomp(decathlon2.active, scale = TRUE)
+fviz_eig(res.pca)
+
+```
+
+Compare to random data (you don't have to do this everytime, this is just educational and I wanted to show you how it looks...)
+```{r}
+set.seed(101)
+mat <- matrix(rnorm(nrow(decathlon2.active)*10), 10, 500)
+
+# Perform PCA
+myPCA <- prcomp(mat, scale = TRUE)
+
+fviz_eig(myPCA)
+
+```
+
+Also be aware of scaling! 
+```{r}
+set.seed(101)
+mat <- matrix(rnorm(nrow(decathlon2.active)*10), 10, 50)
+mat <- scale(mat)
+mat[,1]=mat[,1]*10
+# Perform PCA
+myPCA <- prcomp(mat, scale = FALSE, center = TRUE)
+
+fviz_eig(myPCA)
+
+```
+
+A nice sanity check - permutations (this you could do each time...)! 
+```{r}
+decathlon2.perm <- decathlon2[, 1:10]
+for (i in 1:ncol(decathlon2.perm)) {
+  decathlon2.perm[,i]=sample(decathlon2.perm[,i])
+}
+res.pca.perm <- prcomp(decathlon2.perm, scale = TRUE)
+fviz_eig(res.pca.perm) + ggtitle("permutated")
+
+fviz_eig(res.pca)+ ggtitle("Original")
+
+```
+
+Plot the first two components
+```{r}
+# you can use the fviz packages
+fviz_pca_ind(res.pca,
+             repel = TRUE     # Avoid text overlapping
+             )
+
+# or get the data and plot it yourself
+res.pca <- prcomp(decathlon2.active, scale = TRUE)
+new_PC_representation = res.pca$x
+qplot(new_PC_representation[,1],new_PC_representation[,2],xlab = "PC-1",ylab="PC2")
+
+```
+AnalyZe the original variables and how they map into PC1 and PC2
+```{r}
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
+
+fviz_pca_var(res.pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+```
+All on the same plot... 
+```{r}
+fviz_pca_biplot(res.pca, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+```
+
+Look at "marker gene" - how does some external grouping variable maps to the low dim representation? 
+```{r}
+groups <- as.factor(decathlon2$Competition)
+fviz_pca_ind(res.pca,
+             col.ind = groups, # color by groups
+             palette = c("#00AFBB",  "#FC4E07"),
+             legend.title = "Groups",
+             repel = TRUE
+             )
+```
+
+MDS - working directly from distance matrix!
+```{r}
+dist.au <- read.csv("http://rosetta.reltech.org/TC/v15/Mapping/data/dist-Aus.csv")
+row.names(dist.au) <- dist.au[, 1]
+dist.au <- dist.au[, -1]
+dist.au
+```
+
+```{r}
+fit <- cmdscale(dist.au, eig = TRUE, k = 2)
+x <- fit$points[, 1]
+y <- fit$points[, 2]
+
+plot(x, y, pch = 19, xlim = range(x) + c(0, 600))
+city.names <- c("Adelaide", "Alice Springs", "Brisbane", "Darwin", "Hobart", 
+    "Melbourne", "Perth", "Sydney")
+text(x, y, pos = 4, labels = city.names)
+
+```
+UMap
+```{r}
+library(palmerpenguins)
+penguins = na.omit(penguins)
+penguin.data = penguins[, grep("bill|flipper", colnames(penguins))]
+penguin.labels = penguins$species
+
+
+penguin.umap = umap(penguin.data)
+penguin.umap
+head(penguin.umap$layout, 3)
+qplot(penguin.umap$layout[,1],penguin.umap$layout[,2],aes(color=factor(penguin.labels)))
+```
+
+
+
+
+
