@@ -319,91 +319,101 @@ View(long)
 ##### Exercise 9
 Create a new column for fold-increase compared to control
 calculate the max drug effect for each gene (consider making it a factor...)
-```{r}
+```{r exercise9}
+
+
 
 ```
 
 
-#### R basics: lists
-a generalization of vector - list can include any element
-note the double [[]] syntax
-```{r}
-my_list <- list("cat",7,1:3)
+#### R basics: Adding dimensions: lists
+Lists can contain a series of objects. While vectors store elements of the same types, lists can include any element or structure in a series. Indexing with lists requires the use of double [[]].
+```{r lists}
+# Create a named list with a character vetor, a numeric scalar (one numeric value), and a
+# vector of integers from 1 to 3.
+my_list <- list(cat = "meow",seven = 7, series = 1:3)
 my_list
 
+# Use indexing to call the first object in my_list
 my_list[1]
 
-my_list[[1]]
+# Use indexing to call all elements of the third object in my_list.
+my_list[[3]]
+
+# Use indexing to call the secend element in the third object in my_list.
+my_list[[c(3,2)]]
 
 ```
 
 ##### Exercise 10
-Create a list that combines a string, a 3x3 matrix, and two scalars
+Create a list that combines a vector of character strings, a 3x3 matrix, and two scalars
 add names to your items
 print the product of the 3rd and 4th elements on your list
-```{r}
-testlist <- list("assess", m, x, y)
-print(testlist[c(3,4)])
+```{r exercise10}
+
 
 ```
 
 
 #### R basics: for loops
-A loop is super useful way to repeat actions. But often you don't want to repeat the exact same thing, but rather repeat the same action on each element in a list or array. A for loop does that by running the same block (everything between {}) but each time a single variable changes its value. 
+A loop is super useful way to repeat actions. But often you don't want to repeat the exact same thing, but rather repeat the same action on each element in a list or array. A for loop does that by running the same block (everything between {}) each time a single element changes its value. 
 
-```{r}
+```{r forloops}
+# write a for loop that separately prints every object in my_list, no matter the length.
 for (i in 1:length(my_list)) {
   print(my_list[[i]])
 }
 
+# write a for loop that prints "The year is" for each year between 2010 and 2015.
 for (year in 2010:2015){
   print(paste("The year is", year))
 }
 ```
 
-same loop but with indexing (preferred)
-```{r} 
-years=2010:2015
+We migth construct a loop where we don't know the number of elements in a list, or the number of elements in your list changes depending on external factors. Use the length() function to find out the number of elements in a list, vector, matrix or number of variables in a data frame.
+```{r indexedloop} 
+years <- 2010:2015
+
+# create a loop that prints "The year is" for every year in a list of years of any length.
 for (i in 1:length(years)) {
   print(paste("The year is", years[i]))
 }
 ```
 
-<creating arrays>
+##### R basics: Arrays
+An array is a vector with one or more dimensions. A one-dimensional array is basically a vector. A two dimensional array is basically a matrix. Arrays with more than two dimensions are considered n-dimensional matrices. While lists can contain elements of different data types. Arrays contain elements of all the same data type.
 
-##### Exercise 10
-Create an array  with 4 rows and 3 columns. 
-Fill it up with random numbers (check out rnorm). 
+```{r arrays}
+# Create an array of random numbers with 4 rows and 3 columns: 
 
-Use a single for loop to print all items - in what order does it print them? 
+# First create a list of 12 random numbers. To use create random numbers use rnorm().
+arraydata <- rnorm(12) 
 
-What does it mean to do a single/double loop?
+# Assign arraydata to an array with 4 rows and 3 columns
+TestArray <- array(data = arraydata, dim = c(4, 3)) 
 
-Use a double loop to print 
-```{r}
-
-# to create an array use: 
-# array(data, dim = c(row_Size, column_Size, matrices, dimnames))
-# dim = (defines the dimensions of the array)
-
-# to use create random numbers use:
-# rnorm(n, mean, sd)
-
-
+# Create a loop that creates four different 4x3 arrays with unique random numbers and print them
 for(i in 1:4){
-  arraydata <- rnorm(12, mean = 1, sd = 2)
-  TestArray <- array(data = rnorm(12, mean = 1, sd = 2), dim = c(4, 3)) 
+  arraydata <- rnorm(12)
+  TestArray <- array(data = arraydata, dim = c(4, 3)) 
   print(TestArray)
 
 }
 
+```
+
+##### Exercise 11
+Create an array of random numbers with 3 rows and 4 columns. 
+Use a double for loop to print two of these arrays - in what order does it print them? 
+
+```{r exercise11}
 
 ```
 
 
 #### R basics: Logicals statements and flow control
 Using logical statements allows for the conditional execution of commands. There are a variety of logical statements that can be used to set conditions and checkpoints for downstream analytical procedures.
-```{r}
+```{r logicals}
 # simple logicals (>, <, >=, <=)
 istrue = 5 > 3
 istrue
@@ -432,7 +442,7 @@ a>1 && b>1
 
 
 If/else statements evaluate logical statements to create decision points when writing code. 
-```{r}
+```{r flowcontrol}
 x=5
 y=4
 if (x<y) {
@@ -443,7 +453,7 @@ if (x<y) {
 ```
 
 
-##### Exercise 11 
+##### Exercise 12 
 Write a for loop over the numbers 1-10 and print even/odd statements. 
 hint: The operator %% returns the remainder in a modular division statement
 
@@ -452,35 +462,26 @@ hint: The operator %% returns the remainder in a modular division statement
 10 %% 3 = 1
 11 %% 3 = 2
 
-```{r}
+```{r exercise12}
 
-for(i in 1:10){
-  j<-i%%2
-  if(j==1){
-    print("Odd")
-  } else {
-    print("Even")
-  }
-}
 
 
 ```
 
 #### Basics of R: Functions
-functions are very important, they are just an extension of the language you wrote
-they need to have inputs and output (return)
-```{r}
-# here we will create a function called mymean which caculates the mean of a vector
-mymean = function(myvector) {
-  avg=mean(myvector)
+Functions can be used to perform a specific operation based on your code. Think of your assigned functions as new commands you can use to customize the code you work with. All functions need to have inputs and output (return)
+```{r functions}
+# Here we will create a function called mymean which caculates the mean of a vector
+mymean <- function(myvector) {
+  avg <- mean(myvector)
   return(avg)
 }
 
-# if we create a list x of 100 random numbers
-x<-rnorm(100)
+# If we create a list x of 100 random numbers
+x <- rnorm(100)
 mymean(x) # should return the same value as mean(x)
 
-# we can create an if/else statement that checks if mymean(x) correctly cauculates the mean of x
+# we can create an if/else statement that checks if mymean(x) correctly calculates the mean of x
 if (mean(x) == mymean(x)) {
   print("this makes sense")
 } else {
@@ -490,15 +491,15 @@ if (mean(x) == mymean(x)) {
 ```
 
 
-##### Exercise 12
+##### Exercise 13
 Create a function that gets two inputs, checks that they are numeric scalar and returns their product. (look up is.numeric() and length())  
-```{r}
+```{r exercise13}
 
 ```
 
-##### Exercise 13
+##### Exercise 14
 Update your function to return product, mean, sum of the two inputs. How can you return more than one thing from a function? 
-```{r}
+```{r exercise14}
 
 ```
 
