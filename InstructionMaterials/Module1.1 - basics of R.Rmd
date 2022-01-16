@@ -171,7 +171,7 @@ Create a new boolean vector more_than_four_legs and use it to print the names of
 
 #### Basics of R: vectors and matrices 
 Matrices are another common data structure. Think of them as vectors forced into rectangular shapes. Notice that matrices can only contain one data type. Numeric, Character, Logical, etc.
-```{r}
+```{r matrices}
 # Use the matrix() fuction to create a 3x3 numeric matrix using the numbers 1 through 9.
 # Search for the matrix() fuction under help to find the syntax for the command. 
 m <- matrix(1:9,byrow=TRUE,nrow=3)
@@ -193,26 +193,31 @@ m[,2]
 ```
 
 ##### Exercise 6
-print out the third item of the second row
-print all the items that are p3
-```{r}
-m[2, 3]
-m[,3]
+Print out the third item of the second row.
+Print all the items that are p3.
+```{r exercise6}
+
+
+
 ```
 
 
-
 #### Basics of R: Factors
-factors are another "core type" in R that is useful for stats
-```{r}
-cls <- c("Mammal","Mammal","Arachnid","Insecta")
-cls_factor <- factor(cls)
-levels(cls_factor)
+Factors are another "core type" in R that is useful for stats. They often contain categorical variable information. They generally have a limited set of different values and are often used in statistics to ensure statistical modeling functions treat such data correctly.
+```{r factors}
+# Create a vector of character strings indicating the taxonomic class of our respective animals.
+class <- c("Mammal","Mammal","Arachnid","Insecta")
 
-# function by applies function to groups of elements in vectors (and other data structures) by factor
-by(eye_to_leg,cls_factor,mean)
+# You can use the factor() function to assign chacater vectors as factors. You can also do this with the as.factor() function.
+class_factor <- factor(class)
+levels(class_factor)
 
+# The by() function by applies a function to groups of elements in vectors (and other data
+# structures) by factor. In our example below there are three arguments: (1) the vector of interest,
+# (2) the vector of factor values, and (3) the operation to conduct (in this case, mean)
+by(eye_to_leg, class_factor, mean)
 
+# This should return average eye-to-leg ratio for each class in our data set.
 ```
 
 ##### Exercise 7
