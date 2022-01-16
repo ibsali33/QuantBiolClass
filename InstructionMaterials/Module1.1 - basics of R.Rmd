@@ -1,18 +1,41 @@
 ---
 title: "Module 1.1 - Intro to R"
+author: "A. Gamble, I. Ali, N. Zaitlen"
 output: html_document
+  toc: TRUE
+
 ---
 
-#### Basics of R: variables, and data types (number, string, boolean)
-Variables are used to store values. Core types are numerical, strings, and booleans. 
+## Overview
 
-```{r My chunck}
+R is one of the most commonly used and powerful statistical programming languages and is used to analyze and manipulate data for virtually every professional industry. Over the last 10 years, powerful new tools within R have emerged to make data manipulation and visualization an easier and more accessible process. R is an open source software which means that it will remain freely available to those who need to use it, but also may change its capabilities and improve over time. 
+
+How does R work?
+
+R reads your data (e.g., from an excel or text file) and makes an image of it, which is stored in temporary memory. When you edit your data, you are only editing an image of it; the original dataset is unaffected.  You can then create and alter the datasets within R, which can then be written back to a permanent file. This is called 'nondestructive editing'. You can also create objects (like lists, vectors, matrices and arrays) from directly within R, as opposed to reading them in from a file.
+
+R can do almost anything you can think of doing with your data, which greatly expands the amount of creativity you can apply to your analyses. By using scripts (".R" files, such as this one), you can keep a record of everything you've done to manipulate and analyze your data. Those benefit you later, and can be published or shared with colleagues.
+
+#### Basics of R: data types and data structures
+
+R works most efficiently with data in the form of vectors, which you can think of as lists of info that fall under a particular class. When multiple vectors of the same length are joined up together they create a data frame, which might look similar to a table you would see in excel. A data frame can have multiple classes of data, in contrast, a data matrix is also like a data frame, with the exception that matricies use one class of data to only one class of data. Arrays allow you to work with multidiensional data. In an array, you can package individual values (in other words scalars) vectors, data frames and matricies. We will see various examples of these items over the course of the lesson.
+
+R recognizes several classes of data that can be 'packaged' into vectors. The most common data types include characters, numerics, integers, logicals and factors. Characters are strings of alphanumeric charaters that are written with quotation marks around them. Integers and Numerics, are interpreted as different classifications of numbers, Integers represent whole numbers and Numerics also include decimals and numbers in scientific notation. Logicals are TRUE / FALSE designations which are very useful for filtering, creating for- loops, or if/else components in your code. Factors can be useful for creating groups or categories of data. We will see examples of each of these over the course of the lesson. 
+
+To run code in an Rmd document (like this one), you can highlight what code you would like to run and click the "Run" button in the top right cornder of this window pane. You can also use the Ctrl+Return shortcut.
+
+Let's start by creating some simple obejects and printing their values.
+
+```{r My_chunck}
+
+# create an object by writing in the object name and assigning it with a value using either the = or the <- symbols. 
+
 x=5
-y<-1 # same as =, some people like it better since it shows assignment
+y <- 1 # for creating objects, this is the preferred way since = symbols are used in other contexts
 
-animal<-"cat"
+animal <- "cat"
 
-isDog=FALSE
+isDog <- FALSE
 
 # to view a value, you can either output it's value by allowing R to print it
 x
@@ -21,59 +44,77 @@ x
 # To make sure you print something, use print()
 print(y)
 
-# you can even make it nicer by coverting variable to string and combining strings togeter: 
+# you can even combine different types of objects and free text by writing a character string string and pasting the variable alongside it: 
+
 paste(x)
 paste("X value is:",x)
 ```
 
 ##### Exercise 1. 
-Create a new variable z that has the value of 2*y-x and print it out
-```{r}
+R can function as a calculator. Create a new object z that has the value of 2*y-x and print it out.
+```{r exercise1}
+
 
 ```
 
 
-
 #### Basics of R: vectors and matrices #1
-vectors are used to store a bunch of values
-vectors can be accessed through indexing
-```{r}
-legs<-c(4,4,8,6)
-legs[c(3,4)]
-legs[1]
+Vectors are the most fundamental data structure in R. Vectors are used to store a bunch of values in a series. Indexing is a term used to articulate the order/position of values within a data structure.
+
+```{r vectors}
+
+# Write a series of consecutive integers using a : between two numbers.
+1:4
+
+# Creating a vector object called legs.
+legs <- c(4,4,8,6) # note the c() function allows you to create a series of non-consecutive numbers, or a series of character strings.
+
+legs[1] # this will find the first item in the legs vector
+
+legs[c(2,4)] # this will find the second and fourth item in the legs vector
 
 ```
 
 ##### Exercise 2. 
-Print the value of the third item in legs
-```{r}
+Print the value of the third item in legs with indexing.
+```{r exercise2}
+
+
 
 ```
 
 #### Basics of R: vectors and matrices #2
-you can also give specific names to positions in a vector (and many other things) using names
-```{r}
-specie<-c("cat","dog","spider","ant")
-names(legs)=specie
-legs["spider"]
+You can also give specific names to positions in a vector (and many other things) using the names() function.
+```{r vectornames}
+specie <- c("cat","dog","spider","ant")
+names(legs) <- specie
+
+#when positions are assigned with names, the names can be searched with the indexing function
+legs["spider"] 
 
 ```
 
 ##### Exercise 3. 
-Print the number of legs ants have
-```{r}
+Print the number of legs ants have.
+```{r exercise3}
+
+
 
 ```
 
 
 #### Basics of R: vectors and matrices #3
-operations between vectors are done by element. 
-```{r}
-eyes<-c(2,2,8,2)
-eye_to_leg=eyes/legs
-mean(eye_to_leg)
+Operations between vectors are done in order, or by the corresponding element.
+```{r vectormath}
 
-# watch out for these warnings!
+# You can do math with numeric vectors of equal length
+eyes <- c(2,2,8,2)
+eye_to_leg <- eyes/legs
+
+# Calculate averages with the mean() function - see also median(), sd(), min(), max()
+mean(eye_to_leg) 
+
+# Math with vectors of different lenth will give you warnings. Try running the code below.
 eyes/c(1,3,4)
 
 ```
@@ -81,26 +122,36 @@ eyes/c(1,3,4)
 ##### Exercise 4. 
 Create a new vector with an attribute of your choice (how scary they are?)
 print out the attribute of spider from your vector
-```{r}
+```{r exercise4}
+
+
 
 ```
 
 #### Basics of R: vectors and matrices #4
 accessing vector via multiple indexes or logical operations
-```{r}
+```{r logicaloperations}
+# We can see the value and name of items called by indexing. Notice the names are retained if one
+# of the two vectors that were part of a mathematical operaption has assigned names.
 eye_to_leg[c(1,2)]
 
-is_mammal=c(TRUE,TRUE,FALSE,FALSE)
+# Lets create a vector of boolean values that describes if the animals are, or ar not, mammals.
+is_mammal <- c(TRUE,TRUE,FALSE,FALSE)
+
+# Notice that boolean operators (TRUE/FALSE) are written in all-caps or as single letters (T/F)
+# and they do not require quotations around them
+
+# Using the is_mammal designation, we can call out all the values in a vector that are TRUE
 eye_to_leg[is_mammal]
 
+# Selectively run operations like mean() by calling only the values that are TRUE for a condition
 mean(eye_to_leg[is_mammal])
 
-# you can output the indexes of items that are TRUE using which
+# Output the indexes of items that are TRUE using which()
 which(is_mammal)
 
-# you can also create these boolean vector using logical operations
-# note the difference betweeb = and ==
-has_two_eyes = eyes==2
+# You can also create boolean vectors using logical operations to select for conditions
+has_two_eyes <- eyes == 2
 
 
 ```
@@ -109,12 +160,15 @@ has_two_eyes = eyes==2
 ##### Exercise 5
 Create a new boolean vector more_than_four_legs and use it to print the names of species with >4 legs. Do it twice, once using the original vector species and once using the names() function
 ```{r}
+more_than_four_legs <- c(F, F, T, T)
 
+legs[more_than_four_legs]
+specie[more_than_four_legs]
 ```
 
 
 #### Basics of R: vectors and matrices 
-matrices are just vectors forces into rectangular shape
+matrices are just vectors forced into rectangular shape
 ```{r}
 m<-matrix(1:9,byrow=TRUE,nrow=3)
 rownames(m)=c("t1","t2","t3")
@@ -133,7 +187,8 @@ m[,2]
 print out the third item of the second row
 print all the items that are p3
 ```{r}
-
+m[2, 3]
+m[,3]
 ```
 
 
@@ -154,7 +209,11 @@ by(eye_to_leg,cls_factor,mean)
 ##### Exercise 7
 Create new factor with two levels "big" and "small" and calculate the maximum number of legs per group
 ```{r}
+size <- c("big", "big", "small", "small")
+size_factor <- factor(size)
+levels(size_factor)
 
+by(legs, size_factor, max)
 ```
 
 
@@ -175,7 +234,7 @@ head(penguins,3)
 # or look at the structure of the dataframe
 str(penguins)
 
-# you can access elements in a dataframe just like they where a matrix
+# you can access elements in a dataframe just like a matrix
 penguins[2,4]
 penguins[2,]
 
@@ -187,7 +246,8 @@ penguins$sex[6:10]
 ##### Exercise 8
 Calculate the average penguin weight by island 
 ```{r}
-
+island_factor <- factor(penguins$island)
+by(penguins$body_mass_g, island_factor, mean)
 ```
 
 
@@ -245,6 +305,8 @@ Create a list that combines a string, a 3x3 matrix, and two scalars
 add names to your items
 print the product of the 3rd and 4th elements on your list
 ```{r}
+testlist <- list("assess", m, x, y)
+print(testlist[c(3,4)])
 
 ```
 
@@ -270,34 +332,54 @@ for (i in 1:length(years)) {
 }
 ```
 
+<creating arrays>
 
 ##### Exercise 10
 Create an array  with 4 rows and 3 columns. 
 Fill it up with random numbers (check out rnorm). 
+
 Use a single for loop to print all items - in what order does it print them? 
+
+What does it mean to do a single/double loop?
+
 Use a double loop to print 
 ```{r}
+
+# to create an array use: 
+# array(data, dim = c(row_Size, column_Size, matrices, dimnames))
+# dim = (defines the dimensions of the array)
+
+# to use create random numbers use:
+# rnorm(n, mean, sd)
+
+
+for(i in 1:4){
+  arraydata <- rnorm(12, mean = 1, sd = 2)
+  TestArray <- array(data = rnorm(12, mean = 1, sd = 2), dim = c(4, 3)) 
+  print(TestArray)
+
+}
+
 
 ```
 
 
 #### R basics: Logicals statements and flow control
-Flow control allows conditional execution of commands. 
-First lets look at logical expression: 
+Using logical statements allows for the conditional execution of commands. There are a variety of logical statements that can be used to set conditions and checkpoints for downstream analytical procedures.
 ```{r}
-# simple logical 
+# simple logicals (>, <, >=, <=)
 istrue = 5 > 3
 istrue
 
-# not
+# not (use an ! to get everything except something)
 nottrue = !istrue
 nottrue
 
-# OR
+# OR (use || to return TRUE if any given statement is TRUE)
 istrue = 5 < 3 || 2 < 3
 istrue
 
-# AND
+# AND (use && to return TRUE if and only if both given statements are TRUE)
 isfalse = 5 < 3 && 2 < 3
 isfalse
 
@@ -312,7 +394,7 @@ a>1 && b>1
 ```
 
 
-These logical can be used to evaluate code in a conditional manner using if/else statements
+If/else statements evaluate logical statements to create decision points when writing code. 
 ```{r}
 x=5
 y=4
@@ -326,8 +408,24 @@ if (x<y) {
 
 ##### Exercise 11 
 Write a for loop over the numbers 1-10 and print even/odd statements. 
-hint: look at the operator %%
+hint: The operator %% returns the remainder in a modular division statement
+
+10 / 3  = 3.33333
+10 / 3  = 3 remainder 1 (modular division)
+10 %% 3 = 1
+11 %% 3 = 2
+
 ```{r}
+
+for(i in 1:10){
+  j<-i%%2
+  if(j==1){
+    print("Odd")
+  } else {
+    print("Even")
+  }
+}
+
 
 ```
 
@@ -335,13 +433,17 @@ hint: look at the operator %%
 functions are very important, they are just an extension of the language you wrote
 they need to have inputs and output (return)
 ```{r}
+# here we will create a function called mymean which caculates the mean of a vector
 mymean = function(myvector) {
   avg=mean(myvector)
   return(avg)
 }
 
+# if we create a list x of 100 random numbers
 x<-rnorm(100)
-mymean(x)
+mymean(x) # should return the same value as mean(x)
+
+# we can create an if/else statement that checks if mymean(x) correctly cauculates the mean of x
 if (mean(x) == mymean(x)) {
   print("this makes sense")
 } else {
@@ -352,7 +454,7 @@ if (mean(x) == mymean(x)) {
 
 
 ##### Exercise 12
-Create a function that gets two inputs, checks that they are numeric scalar (look up is.numeric() and length()) and returns their product.  
+Create a function that gets two inputs, checks that they are numeric scalar and returns their product. (look up is.numeric() and length())  
 ```{r}
 
 ```
