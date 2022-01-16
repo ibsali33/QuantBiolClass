@@ -221,76 +221,99 @@ by(eye_to_leg, class_factor, mean)
 ```
 
 ##### Exercise 7
-Create new factor with two levels "big" and "small" and calculate the maximum number of legs per group
-```{r}
-size <- c("big", "big", "small", "small")
-size_factor <- factor(size)
-levels(size_factor)
+Using the appraoch from above, create new factor with two levels "big" and "small" and calculate the maximum number of legs per group
+```{r exercise7}
 
-by(legs, size_factor, max)
+
+
 ```
 
 
 #### Basics of R: Data frames #1
-```{r}
-# a built-in R datasets
-mtcars
 
-# another dataset from the web
-library(palmerpenguins)
+Data frames are another very common data structure in R. Data frames are like tables you might work with in Excel. You can also think of them as a series of vectors of equal length. Importantly, data-frames can organize different classes of data for each column, which is different from matrices which can only contain one class of data.
 
-# you can look at a few rows 
+```{r dataframes}
+# In R, there are some built in data sets that can help us learn to use code. Create an object with the built in R data frame called mtcars.
+CarsData <- mtcars
+
+# To view the whole data frame in Rstudio, use the View() command
+View(mtcars)
+
+# There are many ways to import data sets. Sometimes there are packages created by the R community
+# with data sets that can be used for teaching. To install a package of data, or a package with new
+# functions use the install.packages() function.
+install.packages('palmerpenguins') # you must use quotations when installing packages
+
+# To activate a packages functions use the library() command
+library(palmerpenguins) # quotations are option when loading package libraries
+
+# To view just the top rows use the head() command. Look at the help information for head() to see
+# the different parameters you can use for viewing data sets.
 head(penguins)
 
-# specify the number of rows you want to look at
+# Specify the number of rows you want to look at
 head(penguins,3)
 
-# or look at the structure of the dataframe
+# Look at the structure of the dataframe with the str() command
 str(penguins)
 
-# you can access elements in a dataframe just like a matrix
+# Access elements in a dataframe just like a matrix
 penguins[2,4]
 penguins[2,]
 
-# or get specific items from one column using it's name
+# Get specific items from one column using it's name
 penguins$sex[6:10]
 
 ```
 
 ##### Exercise 8
-Calculate the average penguin weight by island 
-```{r}
-island_factor <- factor(penguins$island)
-by(penguins$body_mass_g, island_factor, mean)
+Using what we learned about grouping with factors, calculate the average penguin weight by island 
+```{r exercise8}
+
+
+
 ```
 
 
 #### Basics of R: Data frames #3
-how to define your own dataframe
-```{r}
+Create your own dataframe
+```{r creatingdfs}
+# Wse the data.frame() command to combine vectors of equal length into a data frame called animals
 animals <- data.frame(eyes=eyes,legs=legs,ratio=eye_to_leg,class=cls_factor)
-animals
+
+View(animals)
 
 ```
 
 Basics of R: Data frames #4
-data can have "wide" and "long" structures, try to use long whenever you can
+Data can have "wide" and "long" structures, try to use long whenever you can.
 ```{r} 
+# Using the read.table() command you can create data frames from tab-separated data. 
 wide <- read.table(textConnection(
 "Gene    Control Drug1   Drug2   Drug3   Drug4
 Actin     20,249  21,352  22,532  23,557  24,555
 Tubulin   8,097   8,986   10,058  11,123  12,246"), header=TRUE)
 
-wide
+View(wide)
 
+# Pro-tip: read.table() is also very useful for reading in text files. Check out the help tab to find # syntax for read.table(). See also read.csv(), read.csv2(), read.delim(), read.delim2(). 
+
+# Pivot tables and transform the shape of your data with various packages. Install and load the
+# package 'reshape2' in order to convert our wide table into a long table.
 library(reshape2)
+
+# the melt() function takes our wide data frame and melts the column names into a 
+# new character vector.
 long <- melt(wide,id.vars="Gene")
-long
+View(long)
+
+# Assign names to the newly created columns.
 colnames(long)<-c("Gene","Treat","Effect")
-long
+View(long)
 
-
-# for the most part, R prefers long  (since it can support more than 2D data...)
+# R can handle mutidimensiontal data (more than 2D). Many packages are easier to use when 
+# your data is in long form.
 ```
 
 ##### Exercise 9
