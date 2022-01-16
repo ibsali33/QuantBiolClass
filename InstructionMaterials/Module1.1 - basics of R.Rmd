@@ -160,27 +160,36 @@ has_two_eyes <- eyes == 2
 ##### Exercise 5
 Create a new boolean vector more_than_four_legs and use it to print the names of species with >4 legs. Do it twice, once using the original vector species and once using the names() function
 ```{r}
-more_than_four_legs <- c(F, F, T, T)
+# create the vector.
 
-legs[more_than_four_legs]
-specie[more_than_four_legs]
+
+# print the values
+
+
 ```
 
 
 #### Basics of R: vectors and matrices 
-matrices are just vectors forced into rectangular shape
+Matrices are another common data structure. Think of them as vectors forced into rectangular shapes. Notice that matrices can only contain one data type. Numeric, Character, Logical, etc.
 ```{r}
-m<-matrix(1:9,byrow=TRUE,nrow=3)
-rownames(m)=c("t1","t2","t3")
-colnames(m)=c("p1","p2","p3")
+# Use the matrix() fuction to create a 3x3 numeric matrix using the numbers 1 through 9.
+# Search for the matrix() fuction under help to find the syntax for the command. 
+m <- matrix(1:9,byrow=TRUE,nrow=3)
+rownames(m)=c("t1","t2","t3") # assign names to rows
+colnames(m)=c("p1","p2","p3") # assign names to columns
 
-# print m
+# Use the print() function to print the values into the console.
 print(m)
 
-# access elements of m - what are the following three lines doing? 
+# You can use indexing to access elements of a matrix. Use commas to indicate the dimensions.
+# What are the following three lines doing? 
 m[2]
 m[2,]
 m[,2]
+
+# Pro-tip: Use short but informative names when creating objects, so you can remember
+# what you have made. Using m for matrix, can be confusing if you have to create more than
+# one different matrix in your data. 
 ```
 
 ##### Exercise 6
