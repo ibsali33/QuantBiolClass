@@ -1,8 +1,10 @@
 ---
 title: "Module 1.1 - Intro to R"
 author: "A. Gamble, I. Ali, N. Zaitlen"
-output: html_document
-  toc: TRUE
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 
 ---
 
@@ -16,7 +18,7 @@ R reads your data (e.g., from an excel or text file) and makes an image of it, w
 
 R can do almost anything you can think of doing with your data, which greatly expands the amount of creativity you can apply to your analyses. By using scripts (".R" files, such as this one), you can keep a record of everything you've done to manipulate and analyze your data. Those benefit you later, and can be published or shared with colleagues.
 
-#### Basics of R: data types and data structures
+## Basics of R: data types and data structures
 
 R works most efficiently with data in the form of vectors, which you can think of as lists of info that fall under a particular class. When multiple vectors of the same length are joined up together they create a data frame, which might look similar to a table you would see in excel. A data frame can have multiple classes of data, in contrast, a data matrix is also like a data frame, with the exception that matricies use one class of data to only one class of data. Arrays allow you to work with multidiensional data. In an array, you can package individual values (in other words scalars) vectors, data frames and matricies. We will see various examples of these items over the course of the lesson.
 
@@ -50,7 +52,7 @@ paste(x)
 paste("X value is:",x)
 ```
 
-##### Exercise 1. 
+### Exercise 1. 
 R can function as a calculator. Create a new object z that has the value of 2*y-x and print it out.
 ```{r exercise1}
 
@@ -58,7 +60,7 @@ R can function as a calculator. Create a new object z that has the value of 2*y-
 ```
 
 
-#### Basics of R: vectors and matrices #1
+## Basics of R: vectors and matrices #1
 Vectors are the most fundamental data structure in R. Vectors are used to store a bunch of values in a series. Indexing is a term used to articulate the order/position of values within a data structure.
 
 ```{r vectors}
@@ -75,7 +77,7 @@ legs[c(2,4)] # this will find the second and fourth item in the legs vector
 
 ```
 
-##### Exercise 2. 
+### Exercise 2. 
 Print the value of the third item in legs with indexing.
 ```{r exercise2}
 
@@ -83,7 +85,7 @@ Print the value of the third item in legs with indexing.
 
 ```
 
-#### Basics of R: vectors and matrices #2
+## Basics of R: vectors and matrices #2
 You can also give specific names to positions in a vector (and many other things) using the names() function.
 ```{r vectornames}
 specie <- c("cat","dog","spider","ant")
@@ -94,7 +96,7 @@ legs["spider"]
 
 ```
 
-##### Exercise 3. 
+### Exercise 3. 
 Print the number of legs ants have.
 ```{r exercise3}
 
@@ -103,7 +105,7 @@ Print the number of legs ants have.
 ```
 
 
-#### Basics of R: vectors and matrices #3
+## Basics of R: vectors and matrices #3
 Operations between vectors are done in order, or by the corresponding element.
 ```{r vectormath}
 
@@ -119,7 +121,7 @@ eyes/c(1,3,4)
 
 ```
 
-##### Exercise 4. 
+### Exercise 4. 
 Create a new vector with an attribute of your choice (how scary they are?)
 print out the attribute of spider from your vector
 ```{r exercise4}
@@ -128,7 +130,7 @@ print out the attribute of spider from your vector
 
 ```
 
-#### Basics of R: vectors and matrices #4
+## Basics of R: vectors and matrices #4
 accessing vector via multiple indexes or logical operations
 ```{r logicaloperations}
 # We can see the value and name of items called by indexing. Notice the names are retained if one
@@ -157,7 +159,7 @@ has_two_eyes <- eyes == 2
 ```
 
 
-##### Exercise 5
+### Exercise 5
 Create a new boolean vector more_than_four_legs and use it to print the names of species with >4 legs. Do it twice, once using the original vector species and once using the names() function
 ```{r}
 # create the vector.
@@ -169,7 +171,7 @@ Create a new boolean vector more_than_four_legs and use it to print the names of
 ```
 
 
-#### Basics of R: vectors and matrices 
+## Basics of R: vectors and matrices 
 Matrices are another common data structure. Think of them as vectors forced into rectangular shapes. Notice that matrices can only contain one data type. Numeric, Character, Logical, etc.
 ```{r matrices}
 # Use the matrix() fuction to create a 3x3 numeric matrix using the numbers 1 through 9.
@@ -192,7 +194,7 @@ m[,2]
 # one different matrix in your data. 
 ```
 
-##### Exercise 6
+### Exercise 6
 Print out the third item of the second row.
 Print all the items that are p3.
 ```{r exercise6}
@@ -202,7 +204,7 @@ Print all the items that are p3.
 ```
 
 
-#### Basics of R: Factors
+## Basics of R: Factors
 Factors are another "core type" in R that is useful for stats. They often contain categorical variable information. They generally have a limited set of different values and are often used in statistics to ensure statistical modeling functions treat such data correctly.
 ```{r factors}
 # Create a vector of character strings indicating the taxonomic class of our respective animals.
@@ -220,7 +222,7 @@ by(eye_to_leg, class_factor, mean)
 # This should return average eye-to-leg ratio for each class in our data set.
 ```
 
-##### Exercise 7
+### Exercise 7
 Using the appraoch from above, create new factor with two levels "big" and "small" and calculate the maximum number of legs per group
 ```{r exercise7}
 
@@ -229,21 +231,23 @@ Using the appraoch from above, create new factor with two levels "big" and "smal
 ```
 
 
-#### Basics of R: Data frames #1
+## Basics of R: Data frames #1
 
 Data frames are another very common data structure in R. Data frames are like tables you might work with in Excel. You can also think of them as a series of vectors of equal length. Importantly, data-frames can organize different classes of data for each column, which is different from matrices which can only contain one class of data.
 
-```{r dataframes}
+```{r dataframes, include=FALSE}
 # In R, there are some built in data sets that can help us learn to use code. Create an object with the built in R data frame called mtcars.
 CarsData <- mtcars
 
-# To view the whole data frame in Rstudio, use the View() command
-View(mtcars)
+# To view the whole data frame in Rstudio, use the View() command or click on
+# the name of the object in your Global Environment
+
 
 # There are many ways to import data sets. Sometimes there are packages created by the R community
 # with data sets that can be used for teaching. To install a package of data, or a package with new
 # functions use the install.packages() function.
-install.packages('palmerpenguins') # you must use quotations when installing packages
+# you must use quotations when installing packages
+# install.packages('palmerpenguins') 
 
 # To activate a packages functions use the library() command
 library(palmerpenguins) # quotations are option when loading package libraries
@@ -267,7 +271,7 @@ penguins$sex[6:10]
 
 ```
 
-##### Exercise 8
+### Exercise 8
 Using what we learned about grouping with factors, calculate the average penguin weight by island 
 ```{r exercise8}
 
@@ -276,17 +280,17 @@ Using what we learned about grouping with factors, calculate the average penguin
 ```
 
 
-#### Basics of R: Data frames #3
+## Basics of R: Data frames #3
 Create your own dataframe
 ```{r creatingdfs}
 # Wse the data.frame() command to combine vectors of equal length into a data frame called animals
-animals <- data.frame(eyes=eyes,legs=legs,ratio=eye_to_leg,class=cls_factor)
+animals <- data.frame(eyes=eyes,legs=legs,ratio=eye_to_leg,class=class_factor)
 
 View(animals)
 
 ```
 
-Basics of R: Data frames #4
+## Basics of R: Data frames #4
 Data can have "wide" and "long" structures, try to use long whenever you can.
 ```{r} 
 # Using the read.table() command you can create data frames from tab-separated data. 
@@ -316,7 +320,7 @@ View(long)
 # your data is in long form.
 ```
 
-##### Exercise 9
+### Exercise 9
 Create a new column for fold-increase compared to control
 calculate the max drug effect for each gene (consider making it a factor...)
 ```{r exercise9}
@@ -326,7 +330,7 @@ calculate the max drug effect for each gene (consider making it a factor...)
 ```
 
 
-#### R basics: Adding dimensions: lists
+## R basics: Adding dimensions: lists
 Lists can contain a series of objects. While vectors store elements of the same types, lists can include any element or structure in a series. Indexing with lists requires the use of double [[]].
 ```{r lists}
 # Create a named list with a character vetor, a numeric scalar (one numeric value), and a
@@ -345,7 +349,7 @@ my_list[[c(3,2)]]
 
 ```
 
-##### Exercise 10
+### Exercise 10
 Create a list that combines a vector of character strings, a 3x3 matrix, and two scalars
 add names to your items
 print the product of the 3rd and 4th elements on your list
@@ -355,7 +359,7 @@ print the product of the 3rd and 4th elements on your list
 ```
 
 
-#### R basics: for loops
+## R basics: for loops
 A loop is super useful way to repeat actions. But often you don't want to repeat the exact same thing, but rather repeat the same action on each element in a list or array. A for loop does that by running the same block (everything between {}) each time a single element changes its value. 
 
 ```{r forloops}
@@ -380,7 +384,7 @@ for (i in 1:length(years)) {
 }
 ```
 
-##### R basics: Arrays
+## R basics: Arrays
 An array is a vector with one or more dimensions. A one-dimensional array is basically a vector. A two dimensional array is basically a matrix. Arrays with more than two dimensions are considered n-dimensional matrices. While lists can contain elements of different data types. Arrays contain elements of all the same data type.
 
 ```{r arrays}
@@ -402,7 +406,7 @@ for(i in 1:4){
 
 ```
 
-##### Exercise 11
+### Exercise 11
 Create an array of random numbers with 3 rows and 4 columns. 
 Use a double for loop to print two of these arrays - in what order does it print them? 
 
@@ -410,8 +414,7 @@ Use a double for loop to print two of these arrays - in what order does it print
 
 ```
 
-
-#### R basics: Logicals statements and flow control
+## R basics: Logicals statements and flow control
 Using logical statements allows for the conditional execution of commands. There are a variety of logical statements that can be used to set conditions and checkpoints for downstream analytical procedures.
 ```{r logicals}
 # simple logicals (>, <, >=, <=)
@@ -453,7 +456,7 @@ if (x<y) {
 ```
 
 
-##### Exercise 12 
+### Exercise 12 
 Write a for loop over the numbers 1-10 and print even/odd statements. 
 hint: The operator %% returns the remainder in a modular division statement
 
@@ -468,7 +471,7 @@ hint: The operator %% returns the remainder in a modular division statement
 
 ```
 
-#### Basics of R: Functions
+## Basics of R: Functions
 Functions can be used to perform a specific operation based on your code. Think of your assigned functions as new commands you can use to customize the code you work with. All functions need to have inputs and output (return)
 ```{r functions}
 # Here we will create a function called mymean which caculates the mean of a vector
@@ -491,13 +494,13 @@ if (mean(x) == mymean(x)) {
 ```
 
 
-##### Exercise 13
+### Exercise 13
 Create a function that gets two inputs, checks that they are numeric scalar and returns their product. (look up is.numeric() and length())  
 ```{r exercise13}
 
 ```
 
-##### Exercise 14
+### Exercise 14
 Update your function to return product, mean, sum of the two inputs. How can you return more than one thing from a function? 
 ```{r exercise14}
 
