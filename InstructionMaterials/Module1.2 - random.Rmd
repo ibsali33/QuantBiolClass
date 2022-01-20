@@ -1,33 +1,75 @@
 ---
-title: "Module1.3 - random stuff"
-output: html_document
+title: "Module 1.2 - Randomness and Probability Distributions"
+author: "A. Gamble, I. Ali, N. Zaitlen"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
+## Getting Set Up
+
+In nearly every R markdown file (like this one) one of the best ways to make your code more readable, easier to troubleshoot and easier to collaborate on is to install packages and load the necessary coding libraries in your first code-chunk
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# you can run the code, but hide the code from your report using the include=FALSE parameter
+
+knitr::opts_chunk$set(echo = TRUE) # this is a default setup parameter for Rmd
+library(knitr)
+library(ggplot2)
+
 ```
 
 ## R working with probability distributions
-```{r random values from uniform}
-# uniform
+
+The runif() command generates n random numbers from a uniform distrubition between 1 and 0. This can be useful in statistical testing and trend validation. Below we will review the basic syntax for this and related commands. CHeck out R help to learn more about the other options. 
+NOTE: runif() does not mean run if.
+```{r randomvalues1}
+# Call one random number from a uniform distribution between 0 and 1
 runif(1)
 
+# Call ten random numbers between 0 and 1
 runif(10)
 
+# Call ten random numbers between -5 and 7
 runif(10,min=-5,max=7)
 
-# coin flip
-runif(20)<0.5
+# Using runif() do 20 coin flips that are returned as TRUE/FALSE
+runif(20) < 0.5
+
+# The rbinom() funtion creates a binomial probability distribution and calculates 
+# the number of sucesses in a trial given a set of parameters. See syntax below
+# rbinom(number_of_trials, number_of_coinflips, probability_of_success)
 rbinom(10,8,0.5)
 ```
 
-```{r}
+
+### Exercise 1
+Call 10 random integers from a uniform distribution of values between 0 and 100. Assign them to an object called "randoms" and print the object.
+HINT: Check out as.integer()
+```{r exercise1}
+
+```
+
+## Random Values and Normal Distributions
+Assessments of normal/non-normal distributions are also useful for statistical testing. 
+Recall using rnorm() in Module1.1. This command returns a normal distribution of random values.
+You can set the mean and standard deviation to return values in a window of interest.
+```{r randomvalues2}
+# Compare runif() and rnorm() outputs using default parameters. 
 runif(10) # using defaults for max,min
 rnorm(10) # using defaults
-rnorm(10,mean=5,sd=3) # mu,sig
+
+# Set the mean and standard deviation values for rnorm() to 5 and 3 respectively
+
+rnorm(10,mean=5,sd=3) 
+
+
 rpois(10,1) # lambda
 rbinom(10,5,0.2) #n,p
 ```
+Remember in statistics, the mean is designated with the greek letter $\mu$ and standard
+deviation is indicated with the greek letter $\sigma$. 
 
 ```{r distribution properties}
 
