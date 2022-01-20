@@ -60,27 +60,58 @@ You can set the mean and standard deviation to return values in a window of inte
 runif(10) # using defaults for max,min
 rnorm(10) # using defaults
 
-# Set the mean and standard deviation values for rnorm() to 5 and 3 respectively
-
+# Set the mean and standard deviation values for rnorm() to 5 and 3, respectively
 rnorm(10,mean=5,sd=3) 
 
-
+# Return 10 values in a Poisson distribution with the probability of success
+# (lambda) equals 1. 
 rpois(10,1) # lambda
-rbinom(10,5,0.2) #n,p
+
+# Return the results of 10 trials with 5 coinflips with a probability of success 0.2.
+rbinom(10,5,0.2)
 ```
 Remember in statistics, the mean is designated with the greek letter $\mu$ and standard
-deviation is indicated with the greek letter $\sigma$. 
+deviation is indicated with the greek letter $\sigma$. What is the significance of $\lambda$?
 
-```{r distribution properties}
+### Exercise 2
+A store in a busy area sees 15 new customers enter every minute. If the shopper entry follows a Poisson distribution, estimate the number of new customers per minute that will enter for a span of 10 minutes.
 
-rnorm(1, mean = 0, sd = 1) # as before....
+Of those 15 new customers approximately two will want to make a purchase. Estimate many total customers will try to make a purchse in that 10 minute span. 
 
-dnorm(2.3, mean = 0, sd = 1) # will returm probability (or density) for a value given parameters
-pnorm(1.7) # cumulative probability
-qnorm(0.7) # value for that quantile
-qnorm(1.7)  # what will happen here? 
+Based on your estimates. Create a vector of TRUE/FALSE values that reports if it is TRUE that more than 1 customer makes a purchase in the 10 minute period. 
+```{r exercise2}
 
-# same for all distributions
+
+```
+
+## Predicting values and probabilities based on their distributions
+There are a number of ways to check probabilities of success, or to estimate values based on the characteristics of a population's distribution.
+
+```{r predictingvalues}
+
+# Remember, rnorm() lets you create one or more random numbers with a given mean and standard deviation
+rnorm(1, mean = 0, sd = 1) 
+
+# dnorm() will return probability (or density) that a specific value will occur 
+# given a set of parameters.
+
+# Calculate the probability that you will get the value 2.3 if the mean is 0 and standard
+# deviation is 1.
+dnorm(2.3, mean = 0, sd = 1) 
+
+# pnorm() will return the cumulative probability for a specific value and all values below it
+# given a set of parameters. What is the default mean and sd?
+pnorm(1.7) 
+
+# What is the differences between dnorm() and pnorm()?
+
+# qnorm returns the expected value given a probability (percentile) score. 
+# what is the expected value of the 70th percentile given mean = 0 and sd = 1?
+qnorm(0.7) 
+qnorm(1.7)  # why doesn't this work? 
+
+# change the suffix from norm to pois to sample from a Poisson distribution instead of
+# a normal distribution. 
 dpois(4, 1)
 ppois(4, 1)
 qpois(0.95,1)
@@ -88,12 +119,33 @@ qpois(0.95,1)
 
 ```
 
+## Sampling
+Create vectors of random samples from already collected data sets. 
 
 ```{r sampling}
-s = cars$speed; 
-sample(s) # will sample without replacement same size of data, i.e. will just permute
-sample(s,replace=TRUE) # same but with replacement, i.e. resampling for bootstrap
-sample(s,replace=TRUE,size=100) # same but you say how many samples
-#sample(s,1000) # What will happen here? 
+# collect a sample of speed values from the cars data frame.
+speed <- cars$speed # lets take a look at all the speed values in the data frame
+
+# Using default parameters, collect a sample from speed. This will simply permute
+# the data or rearrange it in a random order. The default is to sample without replacement.
+sample(speed) 
+
+# Collect the sample again with replacement. Use the replace = TRUE parameter. 
+# How does this compare to the previous values collected? i.e. resampling for bootstrap
+sample(speed,replace=TRUE) 
+
+# Collect a random sample of 100 values from the speed data frame with replacement.
+sample(speed,replace=TRUE,size=100) 
+```
+
+### Exercise 3
+Finish writing this note into the R code that explains why this line of code does not work.
+```{r exercise3, eval=FALSE}
+sample(speed, size = 100)
+# This sample does not work beacuse...
+#
+#
+#
+
 ```
 
