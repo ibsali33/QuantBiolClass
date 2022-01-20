@@ -1,26 +1,50 @@
 ---
-title: "Module 1.4 ploting"
-output: html_document
+title: "Module 1.3 plotting"
+author: "A. Gamble, I. Ali, N. Zaitlen"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
+## Setup
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2) # plotting library
+library(ggExtra) # extra features for plotting library
+library(RColorBrewer) # better color controls for plotting
 ```
 
-```{r}
-x = rnorm(50)
+## Intro to Plotting
+One of the most powerful features of R is it's functionality with data visualization and plotting. 
+Various developers in the R community have created robust tools for data visualization and plotting.
+Some plottinglibraries are immensely extensive, allowing you to create nearly any kind of plot 
+you would like and more. 
+
+One way to plot is to use base R's plotting feature. This does not require the use of any library.
+However, there are limits to base R's functionality and customizability which is why other plotting
+libraries have been created. Here lets explore the basics of plotting in R. 
+```{r plotting1}
+# Call 50 random values collected from a random distribution into an object x and use the
+# plot() function to visualize the data using a simple scatter plot
+x <- rnorm(50)
 plot(x)
 
 ```
 
-Adding lines to plot
-```{r}
+### Adding lines to plot
+You can add multiple layers to plots in R. This allows us to add lines on top of our scatter plot.
+```{r plottinglines}
+# Add a line across the mean of x from the value 1 to 50 on a plot of data x. 
+# the rep function allows you to repeat a value a stated number of times
+# rep(value, no_of_repetitions)
+
 plot(x)
 lines(1:50,rep(0,50))
 ```
 
 Add many things to a plot
-```{r}
+```{r multiplelayers}
 plot(x)
 lines(1:50,rep(0,50))
 lines(x, col = "green4", lty = "dotted") # low level - do not create a new plot
