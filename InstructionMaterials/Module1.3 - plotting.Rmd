@@ -1,5 +1,5 @@
 ---
-title: "Module 1.3 plotting"
+title: "Module 1.3 Plotting"
 author: "A. Gamble, I. Ali, N. Zaitlen"
 output: 
   html_document:
@@ -33,7 +33,8 @@ plot(x)
 ```
 
 ### Adding lines to plot
-You can add multiple layers to plots in R. This allows us to add lines on top of our scatter plot.
+You can add multiple layers to plots in R. This allows us to add lines on top of our scatter plot. 
+This is useful when you want to look at multiple data characteristics simultaneously. Averages, distributions, variance and more. 
 ```{r plottinglines}
 # Add a line across the mean of x from the value 1 to 50 on a plot of data x. 
 # the rep function allows you to repeat a value a stated number of times
@@ -43,12 +44,12 @@ plot(x)
 lines(1:50,rep(0,50))
 ```
 
-Add many things to a plot
+Adding more than two layers using R Base plot functions.
 ```{r multiplelayers}
 plot(x)
-lines(1:50,rep(0,50))
-lines(x, col = "green4", lty = "dotted") # low level - do not create a new plot
-points(x, bg = "limegreen", pch = 21)
+lines(1:50,rep(0,50)) # a line at zero
+lines(x, col = "green4", lty = "dotted") # a green line connecting the dots in chronological order
+points(x, bg = "limegreen", pch = 21) # modifying the color of the dots to lime green
 ```
 
 Other plot types - the boxplot
@@ -231,11 +232,22 @@ legend (x = 4.5, y = 7, legend = levels(iris$Species), col = c(1:3), pch = 16)
 
 ```
 
+## Plotting w ggplot2
+ggplot2 is based on what is called the 'grammar of graphics'. This is 
+the idea that you can build nearly every graph from the same components: 
+(1) a data set, (2) a coordinate system and (3) 'geoms' which are visual 
+marks that represent data points. ggplot2 is able to create a diverse set 
+of plots using these three characteristics. Here we will explore how to 
+construct a few example plots using ggplot2. For a more exhaustive list 
+of ggplot2 functions please review the ggplot2 cheat sheet linked here: 
+https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf. 
+
+It is worth fully exploring ggplot2 documentation. There are many 
+customizable features for each geometry making ggplot2 one of the most 
+comprehensive packages for data visualization in R. 
 
 
-########### now with ggplot2
-
-```{r}
+```{r ggplotintro}
 # Setup
 options(scipen=999)  # turn off scientific notation like 1e+06
 library(ggplot2)
@@ -246,18 +258,22 @@ data("midwest", package = "ggplot2")  # load the data
 ggplot(midwest, aes(x=area, y=poptotal))  # area and poptotal are columns in 'midwest'
 ```
 
-```{r}
-ggplot(midwest, aes(x=area, y=poptotal)) + geom_point()
+```{r addingpoints}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point()
 ```
 
-```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() 
+```{r addinglines}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() 
 g = g + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
 plot(g)
 ```
 
-```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+```{r axislimits}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
 
 # Zoom in without deleting the points outside the limits. 
 # As a result, the line of best fit is the same as the original plot.
@@ -266,12 +282,18 @@ plot(g1)
 ```
 
 ```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
 
 g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
 
 # Add Title and Labels
-g1 + labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+g1 + labs(title="Area Vs Population", 
+          subtitle="From midwest dataset", 
+          y="Population", 
+          x="Area", 
+          caption="Midwest Demographics")
 
 # or
 
@@ -300,7 +322,11 @@ gg <- ggplot(midwest, aes(x=area, y=poptotal)) +
   geom_point(aes(col=state), size=3) +  # Set color to vary based on state categories.
   geom_smooth(method="lm", col="firebrick", size=2) + 
   coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
-  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+  labs(title="Area Vs Population", 
+       subtitle="From midwest dataset", 
+       y="Population", 
+       x="Area", 
+       caption="Midwest Demographics")
 plot(gg)
 ```
 ```{r}
