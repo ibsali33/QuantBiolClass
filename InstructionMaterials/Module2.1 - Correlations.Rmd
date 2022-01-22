@@ -1,0 +1,172 @@
+---
+title: "Module 2.1 - Correlations"
+author: "A. Gamble, I. Ali, N. Zaitlen"
+output: 
+ html_document:
+ toc: TRUE
+ toc_float: TRUE
+---
+
+## Setup
+
+In today's session, we will use the `ggplot2` package for plotting.
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2) # plotting library
+
+```
+
+## Data exploration
+
+### Loading and printing the data
+
+For this example, we are going to use the built-in Iris data set.
+
+```{r data}
+
+head(iris)
+
+```
+
+Below, we explore potential associations between petal length and width, and between sepal length and width.
+
+### Visualizing the data
+
+```{r scatterplot1}
+
+# plot() function to visualize the data with a scatter plot
+plot(iris$Petal.Width, iris$Petal.Length, # Data
+     pch = 19, # Point shape
+     col = c("red", "green3", "blue")[iris$Species], # Color
+     main = "Iris Data - Petals", # Title
+     xlab = "Petal Width", ylab = "Petal Length" # Axis labels
+     )
+
+# legend() function to add a legend
+# the arguments have to match the ones used to generate the plot
+legend("topleft", # Position
+       legend = c("Setosa", "Versicolor", "Virginica" ), # Labels, could also use levels(iris$Species)
+       pch = 19, # Point shape
+       col = c("red", "green3", "blue")) # Color
+
+```
+
+```{r histogram1}
+
+# hist() function to visualize the data with an histogram
+hist(iris$Petal.Length, # Data
+     main = "Iris Data - Petals", # Title
+     xlab = "Petal Length", ylab = "Frequency" # Axis labels
+     )
+
+```
+
+## Testing correlations
+
+### Pearson's correlation 
+
+The Pearson's correlation is used to measure the strength and direction of association between two variables. The Pearson's correlation coefficient can be obtained using the `cor()` function by setting to method to `pearson`.
+
+```{r pearson-cor}
+
+# cor() function to calculate the correlation coefficient
+cor(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+    method = c("pearson") # Method
+    ) 
+
+```
+
+Correlation coefficients can also be obtained using the `cor.test()` function, which also returns a confidence interval of the correlation coefficient. 
+
+```{r pearson-cor.test}
+
+# cor.test() function to calculate the correlation coefficient
+# and the associated confidence interval
+cor.test(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+         method = "pearson" # Method
+         )
+
+```
+
+### Spearman's rank correlation
+
+The Spearman's rank correlation is a non-parametric equivalent to Pearson's correlation. It is used to measure the strength and direction of association between two ranked variables. The Spearman's rank correlation coefficient can also be obtained using the `cor()` function or the `cor.test()` function by setting to method to `spearman`.
+
+```{r spearman}
+
+# cor() function to calculate the correlation coefficient
+cor(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+    method = c("spearman") # Method
+    ) 
+
+# cor.test() function to calculate the correlation coefficient
+# and the associated confidence interval
+cor.test(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+         method = "spearman" # Method
+         )
+
+```
+
+Note that, as Spearman's method is based on ranks, it cannot compute exact p-value when there are tied values (i.e., when two are more observations are equal).
+
+### Permutations
+
+Add explanations...
+
+We start by writing a function that calculates the p-value and correlation coefficient using permutations. 
+
+```{r permutations-function}
+
+my_perm_corr_test = function(x, y, iter = 1000) {
+  r_perm = array(dim = iter)
+  for (i in 1:iter) { # seq(iter) same as 1:iter
+    r_perm[i] = cor(x, sample(y))
+  }
+  r_real = cor(x, y)
+  r_perm_abs = abs(r_perm)
+  r_real_abs = abs(r_real)
+  bigger_thans = r_real_abs > r_perm_abs
+  p_grater_thans = mean(bigger_thans)
+  pval = 1 - p_grater_thans
+  rtn = list("r_perm" = r_perm,
+             "pval" = pval,
+             "r_real" = r_real)
+  return(rtn)
+}
+
+```
+
+We can now apply our `my_perm_corr_test()` to the petal data. 
+
+```{r permutations-petals}
+
+# Execute the my_perm_corr_test() function
+prmtst = my_perm_corr_test(iris$Petal.Length, iris$Petal.Width, iter = 1000)
+
+# Visualize the distribution of the permutations
+hist(prmtst$r_perm)
+
+# Print the calculated p-value and correlation coefficient
+prmtst$pval
+prmtst$r_real 
+
+```
+
+We then apply our `my_perm_corr_test()` to the sepal data. 
+
+```{r permutations-sepals}
+
+# Execute the my_perm_corr_test() function
+prmtst = my_perm_corr_test(iris$Petal.Length, iris$Petal.Width, iter = 1000)
+
+# Visualize the distribution of the permutations
+hist(prmtst$r_perm)
+
+# Print the calculated p-value and correlation coefficient
+prmtst$pval
+prmtst$r_real 
+
+```

@@ -1,8 +1,10 @@
 ---
-title: "R Notebook"
-output:
-  html_document:
-    df_print: paged
+title: "Module 2.1 - Principal component analyses"
+author: "A. Gamble, I. Ali, N. Zaitlen"
+output: 
+ html_document:
+ toc: TRUE
+ toc_float: TRUE
 ---
 
 Some of the material below is from the book: "Practical Guide to Cluster Analysis in R"
