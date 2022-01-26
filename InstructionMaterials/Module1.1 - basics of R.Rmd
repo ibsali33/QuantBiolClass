@@ -26,7 +26,7 @@ R recognizes several classes of data that can be 'packaged' into vectors. The mo
 
 To run code in an Rmd document (like this one), you can highlight what code you would like to run and click the "Run" button in the top right cornder of this window pane. You can also use the Ctrl+Return shortcut.
 
-Let's start by creating some simple obejects and printing their values.
+Let's start by creating some simple objects and printing their values.
 
 ```{r My_chunck}
 
