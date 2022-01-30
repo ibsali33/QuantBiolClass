@@ -2,19 +2,21 @@
 title: "Module 1.2 - Randomness and Probability Distributions"
 author: "A. Gamble, I. Ali, N. Zaitlen"
 output: 
-  html_document:
-    toc: TRUE
-    toc_float: TRUE
+ html_document:
+ toc: TRUE
+ toc_float: TRUE
 ---
 
 ## Getting Set Up
 
-In nearly every R markdown file (like this one) one of the best ways to make your code more readable, easier to troubleshoot and easier to collaborate on is to install packages and load the necessary coding libraries in your first code-chunk
+In nearly every R markdown file (like this one) one of the best ways to make your code more readable, easier to troubleshoot and easier to collaborate on is to install packages and load the necessary coding libraries in your first code-chunk.
 
-```{r setup, include=FALSE}
-# you can run the code, but hide the code from your report using the include=FALSE parameter
+```{r setup, include = FALSE}
+# You can run the code, but hide the code from your report using the include = FALSE parameter
 
 knitr::opts_chunk$set(echo = TRUE) # this is a default setup parameter for Rmd
+
+# Packages
 library(knitr)
 library(ggplot2)
 
@@ -22,9 +24,11 @@ library(ggplot2)
 
 ## R working with probability distributions
 
-The runif() command generates n random numbers from a uniform distrubition between 1 and 0. This can be useful in statistical testing and trend validation. Below we will review the basic syntax for this and related commands. CHeck out R help to learn more about the other options. 
-NOTE: runif() does not mean run if.
+The `runif()` command generates n **random numbers from a uniform distribution** between 1 and 0. This can be useful in statistical testing and trend validation. Below we will review the basic syntax for this and related commands. CHeck out R help to learn more about the other options. 
+Note: `runif()` does not mean run if.
+
 ```{r randomvalues1}
+
 # Call one random number from a uniform distribution between 0 and 1
 runif(1)
 
@@ -32,59 +36,72 @@ runif(1)
 runif(10)
 
 # Call ten random numbers between -5 and 7
-runif(10,min=-5,max=7)
+runif(10, min = -5, max = 7)
 
 # Using runif() do 20 coin flips that are returned as TRUE/FALSE
 runif(20) < 0.5
 
-# The rbinom() funtion creates a binomial probability distribution and calculates 
-# the number of sucesses in a trial given a set of parameters. See syntax below
+# The rbinom() function creates a binomial probability distribution and calculates 
+# the number of successes in a trial given a set of parameters. See syntax below
 # rbinom(number_of_trials, number_of_coinflips, probability_of_success)
-rbinom(10,8,0.5)
-```
+rbinom(10, 8, 0.5)
 
+```
 
 ### Exercise 1
+
 Call 10 random integers from a uniform distribution of values between 0 and 100. Assign them to an object called "randoms" and print the object.
-HINT: Check out as.integer()
+
+Hint: check out `as.integer()`
+
 ```{r exercise1}
+
+
 
 ```
 
-## Random Values and Normal Distributions
+## Random values and normal distributions
+
 Assessments of normal/non-normal distributions are also useful for statistical testing. 
-Recall using rnorm() in Module1.1. This command returns a normal distribution of random values.
+Recall using `rnorm()` in Module 1.1. This command returns a **normal distribution of random values**.
 You can set the mean and standard deviation to return values in a window of interest.
+
 ```{r randomvalues2}
+
 # Compare runif() and rnorm() outputs using default parameters. 
-runif(10) # using defaults for max,min
+runif(10) # using defaults for max, min
 rnorm(10) # using defaults
 
 # Set the mean and standard deviation values for rnorm() to 5 and 3, respectively
-rnorm(10,mean=5,sd=3) 
+rnorm(10, mean = 5, sd = 3) 
 
 # Return 10 values in a Poisson distribution with the probability of success
 # (lambda) equals 1. 
-rpois(10,1) # lambda
+rpois(10, 1) # lambda
 
 # Return the results of 10 trials with 5 coinflips with a probability of success 0.2.
-rbinom(10,5,0.2)
+rbinom(10, 5, 0.2)
+
 ```
-Remember in statistics, the mean is designated with the greek letter $\mu$ and standard
-deviation is indicated with the greek letter $\sigma$. What is the significance of $\lambda$?
+
+Remember in statistics, the mean is designated with the greek letter $\mu$ and standard deviation is indicated with the Greek letter $\sigma$. What is the significance of $\lambda$?
 
 ### Exercise 2
+
 A store in a busy area sees 15 new customers enter every minute. If the shopper entry follows a Poisson distribution, estimate the number of new customers per minute that will enter for a span of 10 minutes.
 
-Of those 15 new customers approximately two will want to make a purchase. Estimate many total customers will try to make a purchse in that 10 minute span. 
+Of those 15 new customers approximately two will want to make a purchase. Estimate many total customers will try to make a purchase in that 10 minute span. 
 
 Based on your estimates. Create a vector of TRUE/FALSE values that reports if it is TRUE that more than 1 customer makes a purchase in the 10 minute period. 
+
 ```{r exercise2}
+
 
 
 ```
 
 ## Predicting values and probabilities based on their distributions
+
 There are a number of ways to check probabilities of success, or to estimate values based on the characteristics of a population's distribution.
 
 ```{r predictingvalues}
@@ -93,10 +110,10 @@ There are a number of ways to check probabilities of success, or to estimate val
 rnorm(1, mean = 0, sd = 1) 
 
 # dnorm() will return probability (or density) that a specific value will occur 
-# given a set of parameters.
+# given a set of parameters
 
 # Calculate the probability that you will get the value 2.3 if the mean is 0 and standard
-# deviation is 1.
+# deviation is 1
 dnorm(2.3, mean = 0, sd = 1) 
 
 # pnorm() will return the cumulative probability for a specific value and all values below it
@@ -105,47 +122,52 @@ pnorm(1.7)
 
 # What is the differences between dnorm() and pnorm()?
 
-# qnorm returns the expected value given a probability (percentile) score. 
+# qnorm returns the expected value given a probability (percentile) score 
 # what is the expected value of the 70th percentile given mean = 0 and sd = 1?
 qnorm(0.7) 
-qnorm(1.7)  # why doesn't this work? 
+qnorm(1.7) # why does not this work? 
 
-# change the suffix from norm to pois to sample from a Poisson distribution instead of
-# a normal distribution. 
+# Change the suffix from norm to pois to sample from a Poisson distribution instead of
+# a normal distribution
 dpois(4, 1)
 ppois(4, 1)
-qpois(0.95,1)
+qpois(0.95, 1)
 
 
 ```
 
 ## Sampling
+
 Create vectors of random samples from already collected data sets. 
 
 ```{r sampling}
-# collect a sample of speed values from the cars data frame.
+
+# Collect a sample of speed values from the cars data frame
 speed <- cars$speed # lets take a look at all the speed values in the data frame
 
 # Using default parameters, collect a sample from speed. This will simply permute
-# the data or rearrange it in a random order. The default is to sample without replacement.
+# the data or rearrange it in a random order. The default is to sample without replacement
 sample(speed) 
 
 # Collect the sample again with replacement. Use the replace = TRUE parameter. 
-# How does this compare to the previous values collected? i.e. resampling for bootstrap
-sample(speed,replace=TRUE) 
+# How does this compare to the previous values collected? i.e. re-sampling for bootstrap
+sample(speed, replace = TRUE) 
 
-# Collect a random sample of 100 values from the speed data frame with replacement.
-sample(speed,replace=TRUE,size=100) 
+# Collect a random sample of 100 values from the speed data frame with replacement
+sample(speed, replace = TRUE, size = 100) 
+
 ```
 
 ### Exercise 3
+
 Finish writing this note into the R code that explains why this line of code does not work.
-```{r exercise3, eval=FALSE}
+
+```{r exercise3, eval = FALSE}
+
 sample(speed, size = 100)
-# This sample does not work beacuse...
+# This sample does not work because...
 #
 #
 #
 
 ```
-
