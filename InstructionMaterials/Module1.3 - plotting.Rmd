@@ -62,29 +62,54 @@ library(RColorBrewer) # better color controls for plotting
 ## Data Import
 
 Using the tools and strategies from Module1.1 and Module1.2 we created a data set
-to simulate a time-course gene expression. Using read.csv() import the data to
-create an obeject called "dummydata"
+to simulate a time-course gene expression experiment. Using read.csv() import the
+data to create an object called "dummydata"
 
-```{r dummydata}
+In this data set we will observe the expression of 15 genes (measured in counts per
+million) over 8 hours. We will use various plotting strategies to understand various
+characteristics of this data set.
 
+```{r dummydataimport}
+
+# using the read.csv() command import the GeneExpressionData.csv file
 dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
+
+# notice that the data is in long form.
+View(dummydata)
 
 ```
 
 ## Plotting One Variable
 
-The most common plots when working with one variable include
+Histograms are some of the most common plots you will see in your research. In this case,
+histograms measure the number of values that fall into pre-defined bins. We can use
+geom_histogram() to look at the distribution of counts per-million for all the genes
+in our data set. 
+
+We can set a fixed number of bins across a data set, or we can set a fixed bin width to
+visualize the data.
 
 ```{r histogram}
 
 # use geom_histogram to create a histogram to show the gene expression counts
 # for all of the data.
+
+# all ggplot commands follow a similar syntax. First within ggplot() you define the
+# data set, and the aesthetics (what you want to set as x, y, or z). For histograms
+# you only need to inlude one variable within aes()
+
 ggplot(dummydata, aes(MeanCounts)) +
-  geom_histogram(bins = 20) # set the number of bins to better visualize the data.
+  geom_histogram(bins = 20)
 
-
+# it looks like our data is a bit skewed. lets set the fill color to change with
+# the gene names to see if some genes have higher overall expression than others.
 ggplot(dummydata, aes(MeanCounts, fill = GeneNames)) + 
-  geom_histogram(binwidth = 10) # you can set give bins a fixed width
+  geom_histogram(bins = 20)
+
+# We can change the width of the bins as well.
+ggplot(dummydata, aes(MeanCounts, fill = GeneNames)) + 
+  geom_histogram(binwidth = 10)
+
 
 ```
 
