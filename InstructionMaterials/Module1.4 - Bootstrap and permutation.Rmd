@@ -1,68 +1,112 @@
 ---
 title: "Module 1.4 - Bootstrap and permutation"
-output: html_document
+author: "A. Gamble, I. Ali, N. Zaitlen"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
-```{r Init, echo=FALSE}
-rm(list=ls())
+```{r setup, echo=FALSE}
 library(ggplot2)
 library(tidyverse)
+library(tidyr)
+library(dplyr)
 # ![Today's class](information_hose.jpg)
 ```
 
+## Overview
+This session will cover bootstrapping methods in statistics to simulate resampling
+or simluate experiment replicability given a set of assumptions. We will start with 
+creating a simulated experimental data set which we will then simulate repeating in
+order to create a distribution of summary statistics.
 
-## Howto structure
-* Look at how things look we truly replicate experiments
-* use bootstrap instead of pipetting! - get summary statistics distribution 
-* a more complex bootstrap example
-* a permutation example - p-value under null hypothesis
+Through the session we will increase the complexity of our bootsrapping example
+to show the scope of its uses and then share a permutation example which will
+calculate a p-value under a null hypothesis.
 
+## Simulate experiments
 
-### Simulate experiments
 This section mimics actual experimental data, this is not a statistical procedure. 
-Assume this is an experiment with sample size n_obs (i.e. n_obs cells)
+In this case, we will simulate an experiment where a researcher is observing the 
+number of vescicles in a cell. We will set the number of observations made (number 
+of cells we look at) in our simulated experiment. We will provide a "true" mean for 
+the experiment. We will use rpois() to create the data set based on our defined
+parameters. We will convert the data set into a data frame and then calculate the
+average.
 
-```{r simulated data}
-n_obs = 30
-true_mean_vesicles_per_cell = 2.3; 
-vesicles_per_cells = rpois(n_obs,true_mean_vesicles_per_cell)
-myexperiment = data.frame(vesicles_per_cells)
-avg_v_per_cell = mean(vesicles_per_cells)
+```{r simulatedata}
+# number of observations aka how many cells are we going to look at?
+n_obs <- 30
+
+# assumed true value
+true_mean_vesicles_per_cell <- 2.3 
+
+# simulate the creation of the data set
+vesicles_per_cells <- rpois(n_obs,true_mean_vesicles_per_cell)
+
+# convert the data set into a data frame which will be needed for plotting
+myexperiment <- data.frame(vesicles_per_cells)
+
+# calculate average vesicles per cell
+avg_v_per_cell <- mean(vesicles_per_cells)
 ```
 
-Plot the data
+Once we have set all the parameters. Lets plot the data. Create a histogram
+looking at the number of vesicles per cell. In addition include a line on top 
+of the histogram to show the average of the simulated data set in red and the
+true mean vesicles per cell in blue. 
 ```{r simulated data2}
+
+# pro tip: use geom_vline() to add a verticle line with a designated x intercept
+# add a subtitle your plot title with ggtitle("title", "subtitle")
+
 ggplot(myexperiment,aes(x=vesicles_per_cells)) + 
-  geom_histogram(bins=25) + 
+  geom_histogram(binwidth = 1) + 
   geom_vline(xintercept = avg_v_per_cell,color="red") + 
   geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") + 
-  ggtitle("Vesicle per cell","Red = estimate, Blue = truth")
+  ggtitle("Vesicle per cell","Red = estimate, Blue = truth")+
+  labs(x = "Vesicles per Cell",
+       y = "Count")
 
 ```
-### Repeat the experiment
-Because this is SIMULATED experiment we can use the army of "virtual undergrads", 
-i.e. repeat the experiment multiple times where each time we measure n_obs cells. 
+### Creating simulated experiment replicates
 
-```{r}
-# number of replcia
-replicas = 25
-vesicles_per_cells = rpois(n_obs*replicas,true_mean_vesicles_per_cell)
+Because this is SIMULATED experiment we can repeat it as many times as needed, 
+Keep in mind that the assumptions we make in the simulated experiment will
+ultimately guide the final outcome of our results. This does not replace repeating
+the actual experiment, but can help us better understand the probability that 
+our results will reproduce given our parameters. This is really useful for 
+modeling results in proof-of-concept simulated experiments.
+
+```{r createreplicates}
+# set the number of times we want to repeat the experiment (replicas)
+replicas <- 25
+
+# we can multiply our observations by our replicates in order to rapidly simulate
+# the collection of the data.
+vesicles_per_cells <- rpois(n_obs*replicas, true_mean_vesicles_per_cell)
 
 # create a factor to say what experiment this is and bind to a data.frame
-experiment_id = gl(replicas,n_obs)
-myexperiment_replicas = data.frame(vesicles = vesicles_per_cells,replica = experiment_id)
+# use gl() to generate factor levels
+experiment_id <- gl(replicas, n_obs)
+myexperiment_replicas <- data.frame(vesicles = vesicles_per_cells, 
+                                    replica = experiment_id)
 ```
 
-Plot all experiments. 
-```{r}
-avg_per_replica = by(vesicles_per_cells,experiment_id,mean)
-df.avg = data.frame(replica=factor(levels(experiment_id)),avg=as.vector(avg_per_replica))
+Use facet wrapping to plot all of the simulated experiments.
+```{r simulationfacets}
+# create a data frame of averages grouped by replicaa
+df.avg <- myexperiment_replicas %>%
+  group_by(replica) %>%
+  summarize(avg_per_replica = mean(vesicles))
 
-
-ggplot(myexperiment_replicas,aes(vesicles_per_cells)) + 
-  geom_histogram(bins=25) + facet_wrap(~replica) + 
-  geom_vline(data=df.avg, aes(xintercept = avg),color="red") + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") 
+# plot all experiment replicates using replicate number as a separating facet. 
+ggplot(myexperiment_replicas, aes(vesicles_per_cells)) + 
+  geom_histogram(binwidth = 1) + 
+  facet_wrap(~replica) + 
+  geom_vline(data=df.avg, aes(xintercept = avg_per_replica),color="red") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") 
 
 ```
 
@@ -98,6 +142,7 @@ ggplot(df.bootstrap,aes(vesicles_per_cells)) +
    geom_vline(data=df.boot.avg, aes(xintercept = avg),color="red") + 
    geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") 
 ```
+
 Look at the distribution of our bootstrap estimate of the mean
 ```{r}
 ggplot(df.boot.avg,aes(x=avg)) + 
