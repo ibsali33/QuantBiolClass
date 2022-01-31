@@ -96,12 +96,12 @@ myexperiment_replicas <- data.frame(vesicles = vesicles_per_cells,
 
 Use facet wrapping to plot all of the simulated experiments.
 ```{r simulationfacets}
-# create a data frame of averages grouped by replicaa
+# create a data frame of averages grouped by the 'replica' factor we created above
 df.avg <- myexperiment_replicas %>%
   group_by(replica) %>%
   summarize(avg_per_replica = mean(vesicles))
 
-# plot all experiment replicates using replicate number as a separating facet. 
+# plot all experiment replicates using replicate number as a the separating facet. 
 ggplot(myexperiment_replicas, aes(vesicles_per_cells)) + 
   geom_histogram(binwidth = 1) + 
   facet_wrap(~replica) + 
@@ -110,44 +110,48 @@ ggplot(myexperiment_replicas, aes(vesicles_per_cells)) +
 
 ```
 
-Let's look at the difference between real and estimated for each of the 25 REAL experiments
-```{r}
-ggplot(df.avg,aes(x=avg)) + 
-  geom_histogram(bins=15) + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") +
-  ggtitle("Distribution of sample mean","Sample mean is a random variable!")
+Let's look at the difference between real and estimated for each of the 25 experiments
+```{r meanestimates}
+ggplot(df.avg, aes(avg_per_replica)) + 
+  geom_histogram(bins = 10) + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") +
+  ggtitle("Distribution of sample mean","True Mean is in Blue")
 
 ```
 ### Back to the "real" world (only do experiment once)
-In the last example, we could truly repeat the experiment with 25 undergrads, what happens if we can't? 
 
-Bootstrap allows us to create estimated samples by sampling from the sample! 
-```{r}
-# sample from the sample 
-sampleFromTheSample = sample(myexperiment$vesicles_per_cells,n_obs*replicas,replace=TRUE)
-df.bootstrap = data.frame(vesicles = sampleFromTheSample,replica=experiment_id)
+In the last example, we simulated repeating the experiment 25 times, what happens if we can't? 
+Bootstrapping allows us to create experimental subsamples by sampling from the sample! 
+```{r subsampling}
+# create a subsample with the sample() command. Using our previously created
+# myexperimet data frame, lets create a sample of vesicles per cell that is 
+# subsampled using bootstrapping with the same number of obervations and replicas
+# that we used before. Since bootstrapping is sampling done with replacement be
+# sure to set replace = TRUE
+subsample1 <- sample(myexperiment$vesicles_per_cells, n_obs*replicas, replace=TRUE)
+
+# the data frame using the subsampled vesicles data and experiment_id from before.
+subsample_boostraps <- data.frame(vesicles = subsample1, replica=experiment_id)
 ```
 
-Plot it is the same way! 
-```{r warning=FALSE}
-# this time I'm using tydiverse instead of standard "by"
-avg_per_replica = df.bootstrap %>%
+Using the same plotting apporach from above lets visualize the 25 subsamples
+```{r plottingsubsamples warning=FALSE}
+bootstraps_averages <- subsample_boostraps %>%
                     group_by(replica) %>%
-                    summarise(mean = mean(vesicles))
+                    summarise(mean_vesicles = mean(vesicles))
 
-df.boot.avg = data.frame(replica=factor(levels(experiment_id)),avg=avg_per_replica$mean)
-ggplot(df.bootstrap,aes(vesicles_per_cells)) + 
-  geom_histogram(bins=25) + 
+ggplot(subsample_boostraps, aes(vesicles)) + 
+  geom_histogram(binwidth = 1) + 
   facet_wrap(~replica) + 
-   geom_vline(data=df.boot.avg, aes(xintercept = avg),color="red") + 
+   geom_vline(data=bootstraps_averages, aes(xintercept = mean_vesicles),color="red") + 
    geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") 
 ```
 
 Look at the distribution of our bootstrap estimate of the mean
-```{r}
-ggplot(df.boot.avg,aes(x=avg)) + 
+```{r bootstrapdistribution}
+ggplot(bootstraps_averages, aes(x=mean_vesicles)) + 
   geom_histogram(bins=15) + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") + 
   ggtitle("Bootstrap distribution of the mean")
 ```
 
@@ -166,7 +170,7 @@ ggplot(data.frame(avg_boot_sample),aes(avg_boot_sample)) + geom_histogram() +
   geom_vline(xintercept = avg_v_per_cell,color="red") + 
   geom_vline(xintercept = mean(avg_boot_sample),color="green") + 
   geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") + 
-  ggtitle("Vesicle per cell","Red = estimate, Blue = truth, Greed = bootstrap")
+  ggtitle("Vesicle per cell","Red = estimate, Blue = truth, Green = bootstrap")
 
 
 ```
