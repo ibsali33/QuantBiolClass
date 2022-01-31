@@ -98,6 +98,8 @@ visualize the data.
 # data set, and the aesthetics (what you want to set as x, y, or z). For histograms
 # you only need to inlude one variable within aes()
 
+# notice that you can add layers and features to ggplots with a + symbol
+
 ggplot(dummydata, aes(MeanCounts)) +
   geom_histogram(bins = 20)
 
@@ -110,70 +112,107 @@ ggplot(dummydata, aes(MeanCounts, fill = GeneNames)) +
 ggplot(dummydata, aes(MeanCounts, fill = GeneNames)) + 
   geom_histogram(binwidth = 10)
 
-
+# Pro tip: you can assign ggplots as objects in your global environment and call them
+# later to further organize your data visualizaitons
 ```
+
+Dot plots are a bit less common, but they can be used with similar results
+as a histogram. 
 
 ```{r dotplot}
+# Use geom_dotplot() with a defined dotsize, binwidth and method to produce
+# a plot similar to hour original histogram.
 ggplot(dummydata, aes(MeanCounts)) +
   geom_dotplot(dotsize = 0.5, binwidth = 10, method = "histodot")
-```
 
+# notice the y axis. What is it showing us.
+```
 
 ## Adding lines to plot
 
-We can take a look at how gene expression changes over time using line plots.
+Using our example we can take a look at how gene expression changes over time 
+using line plots. There are multiple kinds of line plots that you can create with
+ggplot(). geom_line() uses quantitative x and y aesthetics to connect the dots for
+related variables.
 
 ```{r plottinglines}
-# Add a line across the mean of x from the value 1 to 50 on a plot of data x. 
-# the rep function allows you to repeat a value a stated number of times
-# rep(value, no_of_repetitions)
 
-ggplot(dummydata, aes(TimePoint, MeanCounts, color = GeneNames)) +
+# Plot Mean Counts (y) over time (x). Use color = to distinguish between genes.
+ggplot(dummydata, aes(x = TimePoint, y = MeanCounts, color = GeneNames)) +
   geom_line()
 
-# Filter on one ore more genes in order to view individual genes on the plot
-# 
+# Filter on one or more genes in order to view individual genes on the plot
+# using the tidyverse package you can quickly filter on specific genes. This
+# will make it easier for us to view trends among genes.
+
+# create a data frame from the dummydata set that only contains gene 1 
+# through gene 5.
 gene15plot <- dummydata %>%
   filter(GeneNames == c("Gene01","Gene02","Gene03","Gene04","Gene05"))
 
+# recreate our previous line plot for our filtered data set. Notice if we don't
+# include "x =" or "y =" ggplot will assume you list x first and y second.
 ggplot(gene15plot, aes(TimePoint, MeanCounts, color = GeneNames)) +
   geom_line()
 
 ```
 
-Dot plots are another useful way of visualizing each of the points in a trend
+Add additiona layers to emphasize features of the plot. Let's create a line plot
+from genes 6 through 10 and add points to emphasize transition points. 
 
 ```{r addinglayers}
-# add dots to your line plots for genes 5-10
-gene510plot <- dummydata %>%
+# create a data frame from the dummydata set that only contains gene 6 
+# through gene 10.
+gene610plot <- dummydata %>%
   filter(GeneNames == c("Gene06","Gene07","Gene08","Gene09","Gene10"))
 
-ggplot(gene510plot, aes(TimePoint, MeanCounts, color = GeneNames)) +
+# add geom_point to add points to your line plot
+ggplot(gene610plot, aes(x = TimePoint, y = MeanCounts, color = GeneNames)) +
   geom_line()+
   geom_point()
 
-ggplot(gene510plot, aes(TimePoint, MeanCounts, color = GeneNames)) +
-  geom_smooth(method = "auto")+
+# use geom_smooth() instead of geom_line() to create a smoothed line 
+# of the data.
+ggplot(gene610plot, aes(x = TimePoint, y = MeanCounts, color = GeneNames)) +
+  geom_smooth()+
   geom_point()
 
-# clean up the geom smooth plot by removing the confidence intervals
-ggplot(gene510plot, aes(TimePoint, MeanCounts, color = GeneNames)) +
-  geom_smooth(method = "auto", se = F)+
+# modify characteristics of geom_smooth() to improve data readability
+# geom_smooth() creates a linear model based on the data points and
+# displays a confidence interval. You can set the method used to generate
+# the linear model or remove the confidence interval to compare lines 
+# with the 'se =" argument
+ggplot(gene610plot, aes(TimePoint, MeanCounts, color = GeneNames)) +
+  geom_smooth(method = "auto", se = FALSE) +
   geom_point()
 
 ```
 
+Data visualization is always a balance between increasing data density while
+maintaing readability. If you want to quickly separate plots based on specific
+facets, use the facet_wrap() command and indicate what facets used for separating.
 
 ```{r plottinglinesfacets}
-# separate genes 11 through 15 onto different plots and keep the confidence intervals
 
-ggplot(gene510plot, aes(TimePoint, MeanCounts, color = GeneNames)) +
+# use geom_smooth() to look at how genes 6 through 10 change over time  
+# and use the GeneNames variable as a facet to make it easier to see the
+# the confidence intervals.
+
+# as your plots increase in complexity, hit return after every + to auto
+# indent and improve readability of your code.
+
+ggplot(gene610plot, aes(x = TimePoint, y = MeanCounts, color = GeneNames)) +
   geom_smooth(method = "auto") + 
-  geom_point()+
+  geom_point() +
   facet_wrap(facets = "GeneNames") 
 ```
 
 ## Boxplots and Customizing Colors
+
+Another extremely important aspect of data visualization includes depicting
+sample ranges, spread and variability. There are number of ways to do this
+for our lesson we will cover box plots and violin plots as these are some 
+of the most common used for plotting.
 ```{r boxplot}
 # Create a boxplot showing the distribution of gene expression for genes 11-15
 # across all time points.
@@ -188,6 +227,7 @@ ggplot(gene1115plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
 # scale_color_brewer() modifies the color of the plot objects
 # select the palette from many options which you can find
 # https://www.r-graph-gallery.com/38-rcolorbrewers-palettes.html
+
 ggplot(gene1115plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
   geom_boxplot() +
   scale_fill_brewer(palette = "Blues")
@@ -208,13 +248,24 @@ point, lets take a look at the distribution of gene expression for all genes
 in our dummy data set.
 
 ## Violin Plots
+
+Violin plots are a means of depicting data distribution for multiple
+categorical varaibles simultaneously. For this example. Let's use violin plots
+to look at the range for each gene across all time points.
+
 ```{r violinplots}
+# use our dummydata set and geom_violin to create violin plots of our data.
 ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
   geom_violin(scale = "width")+
   labs(title = "Violin Plots of Gene Counts",
        x = "Gene IDs",
        y = "Counts per Million")
 
+# the x axis is a bit crowded. We can rotate the axis text by modifying
+# the theme(). Using theme() modifications  you can customize nearly every
+# feature of your ggplot.
+
+# use labs() to add a plot Title and customize X and Y axis text.
 ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
   geom_violin(scale = "width")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
@@ -222,11 +273,52 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
        x = "Gene IDs",
        y = "Counts per Million")
 
+# Lets add a dotplot on top of our violin to see how each individual point falls
+# into the violin plot's depicted distribution. 
 ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
   geom_violin(scale = "width")+
   geom_dotplot(binaxis = "y", stackdir = "center", fill = "black", color = "white", dotsize = 0.7)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   labs(title = "Violin Plots of Gene Counts",
+       x = "Gene IDs",
+       y = "Counts per Million")
+
+```
+
+
+## Bar Plots
+
+It is important to note that R plots all the values that you give it. What happens if you want to
+create a bar plot that investigates the average gene expression for genes 1 through 5?
+
+```{r barplot}
+
+# plot the values like we did with he violin and box plots. What do you see?
+ggplot(gene15plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) + 
+  geom_col() +
+  scale_fill_brewer(palette = "Purples")+
+  labs(title = "Bar Plots of Average Gene Counts",
+       x = "Gene IDs",
+       y = "Counts per Million")
+
+# for bar and column plots, you will need to independently calculate the mean/sd for
+# each of the genes and then plot them as individual vaules. Use the group_by() and
+# summarize() functions to quickly do this.
+
+gene15summary <- gene15plot %>%
+  group_by(GeneNames) %>% # the group_by() function works similarly to "by =" 
+  summarise(Mean = mean(MeanCounts),
+            StanDev = sd(MeanCounts))
+
+ggplot(gene15summary, aes(x = GeneNames, 
+                          y = Mean, 
+                          fill = GeneNames, 
+                          ymin = Mean-StanDev, 
+                          ymax = Mean+StanDev)) +
+  geom_col()+
+  scale_fill_brewer(palette = "Purples")+
+  geom_errorbar(width = 0.5)+
+  labs(title = "Bar Plots of Average Gene Counts",
        x = "Gene IDs",
        y = "Counts per Million")
 
@@ -272,43 +364,6 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames))+
 ```
 
 
-## Bar Plot
-
-It is important to note that R plots all the values that you give it. What happens if you want to
-create a bar plot that investigates the average gene expression for genes 1 through 5
-
-```{r barplot}
-
-# plot the values like we did with he violin and box plots. What do you see?
-ggplot(gene15plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) + 
-  geom_col() +
-  scale_fill_brewer(palette = "Purples")+
-  labs(title = "Bar Plots of Average Gene Counts",
-       x = "Gene IDs",
-       y = "Counts per Million")
-
-# for bar and column plots, you will need to independently calculate the mean/sd for
-# each of the genes and then plot them as individual vaules. Use the group_by() and
-# summarize() functions to quickly do this.
-
-gene15summary <- gene15plot %>%
-  group_by(GeneNames) %>%
-  summarise(Mean = mean(MeanCounts),
-            StanDev = sd(MeanCounts))
-
-ggplot(gene15summary, aes(x = GeneNames, 
-                          y = Mean, 
-                          fill = GeneNames, 
-                          ymin = Mean-StanDev, 
-                          ymax = Mean+StanDev)) +
-  geom_col()+
-  scale_fill_brewer(palette = "Purples")+
-  geom_errorbar(width = 0.5)+
-  labs(title = "Bar Plots of Average Gene Counts",
-       x = "Gene IDs",
-       y = "Counts per Million")
-
-```
 
 Heatmap
 ```{r heatmap}
