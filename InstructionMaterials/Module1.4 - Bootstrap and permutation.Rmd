@@ -135,6 +135,7 @@ subsample_boostraps <- data.frame(vesicles = subsample1, replica=experiment_id)
 ```
 
 Using the same plotting apporach from above lets visualize the 25 subsamples
+obtained by boostrapping
 ```{r plottingsubsamples warning=FALSE}
 bootstraps_averages <- subsample_boostraps %>%
                     group_by(replica) %>%
@@ -147,7 +148,7 @@ ggplot(subsample_boostraps, aes(vesicles)) +
    geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") 
 ```
 
-Look at the distribution of our bootstrap estimate of the mean
+Look at the distribution of our bootstrap estimate of the mean using the method from earlier.
 ```{r bootstrapdistribution}
 ggplot(bootstraps_averages, aes(x=mean_vesicles)) + 
   geom_histogram(bins=15) + 
@@ -155,22 +156,34 @@ ggplot(bootstraps_averages, aes(x=mean_vesicles)) +
   ggtitle("Bootstrap distribution of the mean")
 ```
 
-In practice we don't need to keep all the samples of samples, just the summary statistics we care about
-```{r}
-# one way of doing this, use a for loop. 
-avg_boot_sample = array(NA,1000)
+In practice we don't need to keep or visualize all the samples of samples, we just
+need the summary statistics. For this example lets scale up by creating an array
+of 1000 sub samples using a for loop and visualizing the results.
+
+```{r scalingup}
+# create the array
+avg_boot_sample <- array(NA,1000)
+
+# initiate the for loop creating the list of subsamples for the array
 for (i in 1:length(avg_boot_sample)){
-  bootsample = sample(vesicles_per_cells,replace=TRUE)
-  avg_boot_sample[i]=mean(bootsample)
+  bootsample <- sample(vesicles_per_cells,replace=TRUE)
+  avg_boot_sample[i] <- mean(bootsample)
 }
+
+# calculate the summary statistics from your array of subsamples.
 mean(avg_boot_sample)
 sd(avg_boot_sample)
 quantile(avg_boot_sample,c(0.025,0.975))
-ggplot(data.frame(avg_boot_sample),aes(avg_boot_sample)) + geom_histogram() + 
-  geom_vline(xintercept = avg_v_per_cell,color="red") + 
-  geom_vline(xintercept = mean(avg_boot_sample),color="green") + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") + 
-  ggtitle("Vesicle per cell","Red = estimate, Blue = truth, Green = bootstrap")
+
+# lets take a look. Notice ggplot can only work with data frames. In this case
+# we can convert the avg_boot_sample array into a data frame within the ggplot
+# command
+ggplot(data.frame(avg_boot_sample) ,aes(avg_boot_sample)) + 
+  geom_histogram() + 
+  geom_vline(xintercept = avg_v_per_cell, color="red") + 
+  geom_vline(xintercept = mean(avg_boot_sample), color="green") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") + 
+  ggtitle("Vesicle per cell", "Red = estimate, Blue = truth, Green = bootstrap")
 
 
 ```
