@@ -1,6 +1,6 @@
 ---
 title: "Module 1.2 - Randomness and Probability Distributions"
-author: "A. Gamble, I. Ali, N. Zaitlen, R. Wollman"
+author: "I. Ali, A. Gamble, N. Zaitlen, R. Wollman"
 output: 
  html_document:
  toc: TRUE
