@@ -338,7 +338,7 @@ Data can have "wide" and "long" structures, try to use long whenever you can.
 wide <- read.table(textConnection(
 "Gene Control Drug1 Drug2 Drug3 Drug4
 Actin 20.249 21.352 22.532 23.557 24.555
-Tubulin 8.097 8.986 10.058 11.123 12.246"). header = TRUE)
+Tubulin 8.097 8.986 10.058 11.123 12.246"), header = TRUE)
 
 View(wide)
 
