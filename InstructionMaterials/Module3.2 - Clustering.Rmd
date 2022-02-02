@@ -1,6 +1,6 @@
 ---
-title: "Module 2.1 - Clustering"
-author: "A. Gamble, I. Ali, N. Zaitlen"
+title: "Module 3.1 - Clustering"
+author: "A. Gamble, I. Ali, N. Zaitlen, R. Wollman"
 output: 
  html_document:
  toc: TRUE

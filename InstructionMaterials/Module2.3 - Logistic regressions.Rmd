@@ -1,6 +1,6 @@
 ---
 title: "Module 2.1 - Logistic regressions"
-author: "A. Gamble, I. Ali, N. Zaitlen"
+author: "A. Gamble, I. Ali, N. Zaitlen, R. Wollman"
 output: 
  html_document:
  toc: TRUE

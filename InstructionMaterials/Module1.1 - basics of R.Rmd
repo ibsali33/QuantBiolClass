@@ -1,6 +1,6 @@
 ---
 title: "Module 1.1 - Intro to R"
-author: "A. Gamble, I. Ali, N. Zaitlen"
+author: "A. Gamble, I. Ali, N. Zaitlen, R. Wollman"
 output: 
  html_document:
  toc: TRUE
