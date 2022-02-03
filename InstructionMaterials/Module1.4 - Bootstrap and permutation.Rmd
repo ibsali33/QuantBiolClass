@@ -119,12 +119,10 @@ ggplot(myexperiment_replicas, aes(vesicles_per_cells)) +
 
 ```
 
-### Challenge 2
-
 Plot all experimental averages in a histogram with the true mean indicated with a blue
 line on the plot.
 
-```{r challenge2}
+```{r meansdistribution}
 ggplot(df.avg, aes(avg_per_replica)) + 
   geom_histogram(binwidth = 0.1) + 
   geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") +
