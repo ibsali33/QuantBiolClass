@@ -23,7 +23,15 @@ library(ggplot2) # plotting library
 
 ### Loading and printing the data
 
-For this example, we are going to use the built-in Iris data set.
+For this example, we are going to use the built-in Iris data set. The Iris data set was originally
+collected in 1890 by Sir Ronald Aylmer Fischer, also the person who invented the Fischer's 
+exact test, maximum liklihood estimation and analysis of variance tests. Use of this data set
+is so common in statistical training, it has been developed into a built in package and data
+set that can be easily loaded and analyzed in R.
+
+This data set contains flower characteristics for three species of plants: setosa, virginica and 
+versicolor. The characteristics include width and length characteristics of the flowers and sepals
+(the leaf under the flower). In total the data set contains 150 observations of 5 variables. 
 
 ```{r data}
 
@@ -31,36 +39,39 @@ head(iris)
 
 ```
 
-Below, we explore potential associations between petal length and width, and between sepal length and width.
+Below, lets start by exploring potential associations between petal length and width, and between 
+sepal length and width.
 
 ### Visualizing the data
 
-```{r scatterplot1}
+```{r visualassessment}
 
-# plot() function to visualize the data with a scatter plot
-plot(iris$Petal.Width, iris$Petal.Length, # Data
-     pch = 19, # Point shape
-     col = c("red", "green3", "blue")[iris$Species], # Color
-     main = "Iris Data - Petals", # Title
-     xlab = "Petal Width", ylab = "Petal Length" # Axis labels
-     )
+# use ggplot to make a histogram to view the distribution of petal.length values
+ggplot(irisdata, aes(Petal.Length)) +
+  geom_histogram() +
+  labs(title = "Iris Data - Petals",
+       x = "Petal Length",
+       y = "Counts") 
 
-# legend() function to add a legend
-# the arguments have to match the ones used to generate the plot
-legend("topleft", # Position
-       legend = c("Setosa", "Versicolor", "Virginica" ), # Labels, could also use levels(iris$Species)
-       pch = 19, # Point shape
-       col = c("red", "green3", "blue")) # Color
+# add a fill color to distinguish between species
+ggplot(irisdata, aes(Petal.Length, fill = Species)) +
+  geom_histogram() +
+  labs(title = "Iris Data - Petals",
+       x = "Petal Length",
+       y = "Counts") +
+  scale_fill_discrete(name = "Species", labels = c("Setosa", "Versicolor", "Virginica"))
 
-```
+# use ggplot to create a scatter plot comparing petal width and petal
+# length for the species
 
-```{r histogram1}
+# use scale_color_discreet to edit the name and labels for your legend
+ggplot(irisdata, aes(x = Petal.Width, y = Petal.Length, color = Species)) +
+  geom_point() +
+  labs(title = "Iris Data - Petals",
+       x = "Petal Width",
+       y = "Petal Length") +
+  scale_color_discrete(name = "Species", labels = c("Setosa", "Versicolor", "Virginica"))
 
-# hist() function to visualize the data with an histogram
-hist(iris$Petal.Length, # Data
-     main = "Iris Data - Petals", # Title
-     xlab = "Petal Length", ylab = "Frequency" # Axis labels
-     )
 
 ```
 
@@ -68,7 +79,9 @@ hist(iris$Petal.Length, # Data
 
 ### Pearson's correlation 
 
-The Pearson's correlation is used to measure the strength and direction of association between two variables. The Pearson's correlation coefficient can be obtained using the `cor()` function by setting to method to `pearson`.
+The Pearson's correlation is used to measure the strength and direction of association 
+between two variables. The Pearson's correlation coefficient can be obtained using the
+`cor()` function by setting to method to `pearson`.
 
 ```{r pearson-cor}
 
@@ -147,7 +160,10 @@ We can now apply our `my_perm_corr_test()` to the petal data.
 prmtst = my_perm_corr_test(iris$Petal.Length, iris$Petal.Width, iter = 1000)
 
 # Visualize the distribution of the permutations
-hist(prmtst$r_perm)
+# the output of our permutation function is not a data frame so we must
+# convert it to a data frame to plot in ggplot
+ggplot(data.frame(prmtst), aes(r_perm)) +
+  geom_histogram()
 
 # Print the calculated p-value and correlation coefficient
 prmtst$pval
@@ -160,10 +176,11 @@ We then apply our `my_perm_corr_test()` to the sepal data.
 ```{r permutations-sepals}
 
 # Execute the my_perm_corr_test() function
-prmtst = my_perm_corr_test(iris$Petal.Length, iris$Petal.Width, iter = 1000)
+prmtst = my_perm_corr_test(iris$Sepal.Length, iris$Sepal.Width, iter = 1000)
 
 # Visualize the distribution of the permutations
-hist(prmtst$r_perm)
+ggplot(data.frame(prmtst), aes(r_perm)) +
+  geom_histogram()
 
 # Print the calculated p-value and correlation coefficient
 prmtst$pval
