@@ -129,7 +129,7 @@ as a histogram.
 ```{r dotplot}
 
 # Use geom_dotplot() with a defined dotsize, binwidth and method to produce
-# a plot similar to hour original histogram
+# a plot similar to our original histogram
 
 ggplot(dummydata, aes(MeanCounts)) + 
  geom_dotplot(dotsize = 0.5, binwidth = 10, method = "histodot")
@@ -246,13 +246,14 @@ ggplot(gene1115plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
  geom_boxplot() + 
  scale_fill_brewer(palette = "Blues")
 
-# Customize Axis Titles and Labels
+# Customize Axis Titles and Labels. Notice that when you hit return after a
+# comma, + or %>%; R will automatically indent to make the code more readable
 ggplot(gene1115plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) + 
  geom_boxplot() + 
  scale_fill_brewer(palette = "Greens") + 
  labs(title = "Box Plots of Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 ```
 
@@ -272,9 +273,9 @@ to look at the range for each gene across all time points.
 # Use our dummydata set and geom_violin to create violin plots of our data
 ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) + 
  geom_violin(scale = "width") + 
- labs(title = "Violin Plots of Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+ labs(title = "Violin Plots of Gene Counts",
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 # The x axis is a bit crowded
 # We can rotate the axis text by modifying the theme()
@@ -286,8 +287,8 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
  geom_violin(scale = "width") + 
  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
  labs(title = "Violin Plots of Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 # Lets add a dot plot on top of our violin to see how each individual point falls
 # into the violin plot's depicted distribution
@@ -296,8 +297,8 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
  geom_dotplot(binaxis = "y", stackdir = "center", fill = "black", color = "white", dotsize = 0.7) + 
  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
  labs(title = "Violin Plots of Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 ```
 
@@ -314,8 +315,8 @@ ggplot(gene15plot, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
  geom_col() + 
  scale_fill_brewer(palette = "Purples") + 
  labs(title = "Bar Plots of Average Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 # For bar and column plots, you will need to independently calculate the mean/sd for
 # each of the genes and then plot them as individual values
@@ -326,17 +327,14 @@ gene15summary <- gene15plot %>%
  summarise(Mean = mean(MeanCounts), 
  StanDev = sd(MeanCounts))
 
-ggplot(gene15summary, aes(x = GeneNames, 
- y = Mean, 
- fill = GeneNames, 
- ymin = Mean-StanDev, 
- ymax = Mean + StanDev)) + 
- geom_col() + 
- scale_fill_brewer(palette = "Purples") + 
- geom_errorbar(width = 0.5) + 
- labs(title = "Bar Plots of Average Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+ggplot(gene15summary, aes(x = GeneNames, y = Mean, fill = GeneNames, 
+                          ymin = Mean-StanDev, ymax = Mean + StanDev)) + 
+  geom_col() + 
+  scale_fill_brewer(palette = "Purples") + 
+  geom_errorbar(width = 0.5) + 
+  labs(title = "Bar Plots of Average Gene Counts", 
+       x = "Gene IDs", 
+       y = "Counts per Million")
 
 ```
 
@@ -357,8 +355,8 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
  scale_fill_brewer(palette = "Blues") + 
  labs(title = "Violin Plots of Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 # Notice that genes 10-15 have no color
 # So in this case we need to expand the color palette # to match the number 
@@ -377,8 +375,8 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
  geom_dotplot(binaxis = "y", stackdir = "center", fill = "black", color = "white", dotsize = 0.7) + 
  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
  labs(title = "Violin Plots of Gene Counts", 
- x = "Gene IDs", 
- y = "Counts per Million")
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 ```
 
@@ -389,14 +387,14 @@ ggplot(dummydata, aes(x = GeneNames, y = MeanCounts, fill = GeneNames)) +
 ggplot(dummydata, aes(x = as.character(TimePoint), y = GeneNames)) + 
  geom_tile(aes(fill = MeanCounts)) + 
  labs(title = "Heatmap of Average Gene Counts", 
- x = "Time Point", 
- y = "Counts per Million")
+      x = "Time Point", 
+      y = "Counts per Million")
 
 ```
 
 ## Exporting figures
 
-We can export publication-quality figures with `ggsave`.
+We can export publication-quality figures with `ggsave()`.
 
 ```{r save}
 
