@@ -329,12 +329,12 @@ gene15summary <- gene15plot %>%
 
 ggplot(gene15summary, aes(x = GeneNames, y = Mean, fill = GeneNames, 
                           ymin = Mean-StanDev, ymax = Mean + StanDev)) + 
-  geom_col() + 
-  scale_fill_brewer(palette = "Purples") + 
-  geom_errorbar(width = 0.5) + 
-  labs(title = "Bar Plots of Average Gene Counts", 
-       x = "Gene IDs", 
-       y = "Counts per Million")
+ geom_col() + 
+ scale_fill_brewer(palette = "Purples") + 
+ geom_errorbar(width = 0.5) + 
+ labs(title = "Bar Plots of Average Gene Counts",
+      x = "Gene IDs", 
+      y = "Counts per Million")
 
 ```
 
@@ -399,14 +399,13 @@ We can export publication-quality figures with `ggsave()`.
 ```{r save}
 
 ggsave(
-  "Data/Heatmap.pdf", # do not forget the format
-  plot = last_plot(), # default is last plot but we can use plot names too
-  device = "pdf",
-  width = 10,
-  height = 10,
-  units = c("cm"),
-  dpi = 300
+ "Heatmap.pdf", # do not forget the format
+ plot = last_plot(), # default is last plot but we can use plot names too
+ device = "pdf",
+ width = 10,
+ height = 10,
+ units = c("cm"),
+ dpi = 300
 )
 
 ```
-

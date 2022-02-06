@@ -7,16 +7,19 @@ output:
     toc_float: TRUE
 ---
 
-```{r setup, echo=FALSE}
+```{r setup, echo = FALSE}
+
 library(ggplot2)
 library(tidyverse)
 library(tidyr)
 library(dplyr)
+
 ```
 
 ## Overview
-This session will cover bootstrapping methods in statistics to calculate summary
-statstics. We will use techniques from previous sessions in order to simluate experiment 
+
+This session will cover **bootstrapping** methods in statistics to calculate summary
+statistics. We will use techniques from previous sessions in order to simulate experiment 
 data collection given a set of assumptions. We will then use a bootsrapping approach to 
 create summary statistics from this data.
 
@@ -28,27 +31,32 @@ calculate a p-value under a null hypothesis.
 
 This section mimics actual experimental data, this is *not* a statistical procedure. 
 In this case, we will simulate an experiment where a researcher is observing the 
-number of vescicles in a cell. We will set the number of observations made (number 
-of cells we look at) in our simulated experiment. We will provide a "true" mean for 
-the experiment. We will use rpois() to create the data set based on our defined
-parameters. We will convert the data set into a data frame and then calculate the
-average.
+number of vesicles in a cell. We will set the number of observations made (number 
+of cells we look at) in our simulated experiment. We will provide a 'true' mean number 
+of vesicles/cell for the experiment. We will use rpois() to create the data set 
+based on our defined parameters. We will convert the data set into a data frame and 
+then calculate the average.
 
 ```{r simulatedata}
-# number of observations aka how many cells are we going to look at?
+
+# Set the seed of the random number generator
+set.seed(1)
+
+# Number of observations aka how many cells are we going to look at?
 n_obs <- 30
 
-# this is our assumed true value
+# This is our assumed true value
 true_mean_vesicles_per_cell <- 2.3 
 
-# simulate the experiment with rpois()
+# Simulate the experiment with rpois()
 vesicles_per_cells <- rpois(n_obs, true_mean_vesicles_per_cell)
 
-# convert the data set into a data frame which will be needed for plotting
+# Convert the data set into a data frame which will be needed for plotting
 myexperiment <- data.frame(vesicles_per_cells)
 
-# calculate average vesicles per cell
+# Calculate average vesicles per cell
 avg_v_per_cell <- mean(vesicles_per_cells)
+
 ```
 
 We have now created a data set that contains the number of vesicles observed in
@@ -63,58 +71,57 @@ and the true mean vesicles per cell in blue.
 
 ```{r simulateddata2}
 
-# pro tip: use geom_vline() to add a verticle line with a designated x intercept
-# add a subtitle your plot title with ggtitle("title", "subtitle")
+# Pro tip: use geom_vline() to add a vertical line with a designated x intercept
 
-ggplot(myexperiment,aes(x=vesicles_per_cells)) + 
+# Add a subtitle your plot title with ggtitle("title", "subtitle")
+ggplot(myexperiment, aes(x = vesicles_per_cells)) + 
   geom_histogram(binwidth = 1) + 
-  geom_vline(xintercept = avg_v_per_cell,color="red") + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") + 
-  ggtitle("Vesicle per cell","Red = estimate, Blue = truth") +
-  labs(x = "Vesicles per Cell",
+  geom_vline(xintercept = avg_v_per_cell, color = "red") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color = "blue") + 
+  ggtitle("Vesicle per cell", "Red = estimate, Blue = truth") +
+  labs(x = "Vesicles per Cell", 
        y = "Count")
 
 ```
 
-Because this is SIMULATED experiment we can repeat it as many times as needed.
+Because this is a *simulated* experiment we can repeat it as many times as needed.
 Let's pretend we had a large team that was able to repeat the experiment 25 times.
 
 ```{r createreplicates}
-# set the number of times we want to repeat the experiment (replicas)
-replicas <- 25
 
-# we can multiply our observations by our replicates in order to rapidly simulate
+# Set the number of times we want to repeat the experiment (replicates)
+replicates <- 25
+
+# We can multiply our observations by our replicates in order to rapidly simulate
 # the collection of the data.
-vesicles_per_cells <- rpois(n_obs*replicas, true_mean_vesicles_per_cell)
+vesicles_per_cells <- rpois(n_obs*replicates, true_mean_vesicles_per_cell)
 
-# create a factor to designate experiment number and bind to the data.frame
+# Create a factor to designate experiment number and bind to the data.frame
 # use gl() to generate factor levels
-experiment_id <- gl(replicas, n_obs)
-myexperiment_replicas <- data.frame(vesicles = vesicles_per_cells, 
-                                    replica = experiment_id)
+experiment_id <- gl(replicates, n_obs)
+myexperiment_replicates <- data.frame(vesicles = vesicles_per_cells, 
+                                    replicate = experiment_id)
 
-# create a data frame of averages grouped by the 'replica' factor we created above
-df.avg <- myexperiment_replicas %>%
-  group_by(replica) %>%
-  summarize(avg_per_replica = mean(vesicles))
+# Create a data frame of averages grouped by the 'replicate' factor we created above
+df.avg <- myexperiment_replicates %>%
+  group_by(replicate) %>%
+  summarize(avg_per_replicate = mean(vesicles))
 
 ```
-
-### Challenge 1
 
 Let's take a look at the results of all our simulated experiments and their
 respective means.
 
 ```{r challenge1}
 
-# plot all experiment replicates using replicate number as a the separating facet. 
-ggplot(myexperiment_replicas, aes(vesicles_per_cells)) + 
+# Plot all experiment replicates using replicate number as a the separating facet
+ggplot(myexperiment_replicates, aes(vesicles_per_cells)) + 
   geom_histogram(binwidth = 1) + 
-  facet_wrap(~replica) + 
-  geom_vline(data = df.avg, aes(xintercept = avg_per_replica),color="red") + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") +
-  ggtitle("Vesicle per cell","Red = estimate, Blue = truth") +
-  labs(x = "Vesicles Per Cell",
+  facet_wrap(~replicate) + 
+  geom_vline(data = df.avg, aes(xintercept = avg_per_replicate), color = "red") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color = "blue") +
+  ggtitle("Vesicle per cell", "Red = estimate, Blue = truth") +
+  labs(x = "Vesicles Per Cell", 
        y = "Count")
 
 ```
@@ -123,11 +130,12 @@ Plot all experimental averages in a histogram with the true mean indicated with 
 line on the plot.
 
 ```{r meansdistribution}
-ggplot(df.avg, aes(avg_per_replica)) + 
+
+ggplot(df.avg, aes(avg_per_replicate)) + 
   geom_histogram(binwidth = 0.1) + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") +
-  ggtitle("Distribution of sample mean","True Mean is in Blue") +
-  labs(x = "Mean Vesicles per Replica",
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color = "blue") +
+  ggtitle("Distribution of sample mean", "True Mean is in Blue") +
+  labs(x = "Mean Vesicles per replicate", 
        y = "Count")
 
 ```
@@ -136,121 +144,126 @@ ggplot(df.avg, aes(avg_per_replica)) +
 
 In the last example, we simulated repeating the experiment 25 times, what happens if we can't? 
 In many cases we will only be able to conduct the experiment once and have a limited data set.
-Bootstrapping allows us to create experimental subsamples by sampling from the sample! This
+Bootstrapping allows us to **create experimental sub-samples** by sampling from the sample! This
 can help us estimate summary statistics and give us more confidence in our final results.
 
 Essentially, bootstrapping is the process of creating a large number of sub-samples from your
-original data set by selecting values with replacement. While each sub-sample is created from
+original data set by selecting values **with replacement**. While each sub-sample is created from
 the original data set, it does not look exactly the same. We can calculate the means and variance
 from the sub-sampled data sets to generate an estimate of the range of possible means in the data
 set.
 
 ```{r subsampling}
-# create a subsample with the sample() command. Using our previously created
-# data set, lets create a sample of vesicles per cell that is subsampled using 
-# bootstrapping with the same number of obervations and replicas that we used 
-# before. Since bootstrapping is sampling done with replacement be sure to set 
+
+# Create a sub-sample with the sample() command
+# Using our previously created  data set, lets create a sample of vesicles per 
+# cell that is sub-sampled using bootstrapping with the same number of 
+# observations and replicates that we used before
+# Since bootstrapping is sampling done with replacement be sure to set 
 # replace = TRUE
+subsample1 <- sample(myexperiment$vesicles_per_cells, n_obs*replicates, replace = TRUE)
 
-subsample1 <- sample(myexperiment$vesicles_per_cells, n_obs*replicas, replace=TRUE)
+# The data frame using the sub-sampled vesicles data and experiment_id from before
+subsample_boostraps <- data.frame(vesicles = subsample1, replicate = experiment_id)
 
-# the data frame using the subsampled vesicles data and experiment_id from before.
-subsample_boostraps <- data.frame(vesicles = subsample1, replica=experiment_id)
-
-# calculate means for the bootstrapped subsamples
+# Calculate means for the bootstrapped sub-samples
 bootstraps_averages <- subsample_boostraps %>%
-                    group_by(replica) %>%
+                    group_by(replicate) %>%
                     summarise(mean_vesicles = mean(vesicles))
 
-# Using the same plotting apporach from above lets visualize the 25 subsamples
-# obtained by boostrapping
-
+# Using the same plotting approach from above lets visualize the 25 sub-samples
+# obtained by bootstrapping
 ggplot(subsample_boostraps, aes(vesicles)) + 
   geom_histogram(binwidth = 1) + 
-  facet_wrap(~replica) + 
-  geom_vline(data = bootstraps_averages, aes(xintercept = mean_vesicles),color="red") + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell,color="blue") 
+  facet_wrap(~replicate) + 
+  geom_vline(data = bootstraps_averages, aes(xintercept = mean_vesicles), color = "red") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color = "blue") 
 
 ```
 
 Look at the distribution of our bootstrap estimate of the mean using the method from earlier.
 
 ```{r bootstrapdistribution}
-ggplot(bootstraps_averages, aes(x=mean_vesicles)) + 
-  geom_histogram(bins=15) + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") + 
+
+ggplot(bootstraps_averages, aes(x = mean_vesicles)) + 
+  geom_histogram(bins = 15) + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color = "blue") + 
   ggtitle("Bootstrap distribution of the mean")
+
 ```
 
-In practice we don't need to keep or visualize all the samples of samples, we just
-need the summary statistics. For this example lets scale up by creating an array
+In practice we do not need to keep or visualize all the samples of samples, we just
+need the summary statistics. For this example let's scale up by creating an array
 of 1000 sub samples using a for loop and visualizing the results.
 
 ```{r scalingup}
-# create an empty array which can be filled with the 1000 sub samples
-avg_boot_sample <- array(NA,1000)
 
-# create a for loop that collects the subsamples and fills the array
+# Create an empty array which can be filled with the 1000 sub samples
+avg_boot_sample <- array(NA, 1000)
+
+# Create a for loop that collects the sub-samples and fills the array
 for (i in 1:length(avg_boot_sample)){
-  bootsample <- sample(vesicles_per_cells,replace=TRUE)
+  bootsample <- sample(vesicles_per_cells, replace = TRUE)
   avg_boot_sample[i] <- mean(bootsample)
 }
 
-# calculate the summary statistics from your array of subsamples.
+# Calculate the summary statistics from your array of sub-samples
 mean(avg_boot_sample)
 sd(avg_boot_sample)
-quantile(avg_boot_sample,c(0.025,0.975))
+quantile(avg_boot_sample, c(0.025, 0.975))
 
-# lets take a look. Notice ggplot can only work with data frames. In this case
-# we can convert the avg_boot_sample array into a data frame within the ggplot
-# command
-ggplot(data.frame(avg_boot_sample) ,aes(avg_boot_sample)) + 
+# Let's take a look
+# Notice ggplot can only work with data frames
+# In this case we can convert the avg_boot_sample array into a 
+# data frame within the ggplot command
+ggplot(data.frame(avg_boot_sample) , aes(avg_boot_sample)) + 
   geom_histogram() + 
-  geom_vline(xintercept = avg_v_per_cell, color="red") + 
-  geom_vline(xintercept = mean(avg_boot_sample), color="green") + 
-  geom_vline(xintercept = true_mean_vesicles_per_cell, color="blue") + 
+  geom_vline(xintercept = avg_v_per_cell, color = "red") + 
+  geom_vline(xintercept = mean(avg_boot_sample), color = "green") + 
+  geom_vline(xintercept = true_mean_vesicles_per_cell, color = "blue") + 
   ggtitle("Vesicle per cell", "Red = estimate, Blue = truth, Green = bootstrap")
-
 
 ```
 
+## Application to another data set
 
-Second bootstrap example
 ```{r example2intro}
+
 library(palmerpenguins)
 
-ggplot(penguins,aes(x=sex, y=flipper_length_mm, color=sex)) + 
+ggplot(penguins, aes(x = sex, y = flipper_length_mm, color = sex)) + 
   geom_violin()
 
 # clean NAs
 sum(is.na(penguins$sex))
-penguins_clean <- penguins[!is.na(penguins$sex),]
+penguins_clean <- penguins[!is.na(penguins$sex), ]
 
 # penguins_clean = penguins %>% filter(!is.na(sex))
 
-ggplot(penguins_clean, aes(x=sex, y=flipper_length_mm, fill=sex)) + 
+ggplot(penguins_clean, aes(x = sex, y = flipper_length_mm, fill = sex)) + 
   geom_violin()
-
 
 ```
 
 Are there differences in flipper length? 
+
 ```{r deltaflipperlength}
+
 # to make code more readable, create an indicator variable
-is_female <- penguins_clean$sex=="female"
+is_female <- penguins_clean$sex == "female"
 
 avg_female <- mean(penguins_clean$flipper_length_mm[is_female])
 avg_male <- mean(penguins_clean$flipper_length_mm[!is_female])
 diff_flipper_length <- avg_female - avg_male
 
-print(paste("Flipper lenth difference between male and female is: ",diff_flipper_length))
+print(paste("Flipper lenth difference between male and female is: ", diff_flipper_length))
 print("Is is REAL?")
 ```
 
 To build intuition, let's look at the difference from the within group mean (residual)
 
 ```{r meandifferences}
-individual_diff_from_mean <- array(NA,nrow(penguins_clean))
+individual_diff_from_mean <- array(NA, nrow(penguins_clean))
 
 individual_diff_from_mean[is_female] <- penguins_clean$flipper_length_mm[is_female] - avg_female
 individual_diff_from_mean[!is_female] <- penguins_clean$flipper_length_mm[!is_female] - avg_male
@@ -259,12 +272,12 @@ individual_diff_from_mean[!is_female] <- penguins_clean$flipper_length_mm[!is_fe
 penguins_clean_diff <- cbind(penguins_clean, individual_diff_from_mean)
 
 #plot
-ggplot(penguins_clean_diff, aes(x=individual_diff_from_mean)) +
+ggplot(penguins_clean_diff, aes(x = individual_diff_from_mean)) +
  geom_histogram()
 
-ggplot(penguins_clean_diff, aes(x=sex, y=individual_diff_from_mean)) +
+ggplot(penguins_clean_diff, aes(x = sex, y = individual_diff_from_mean)) +
  geom_violin()
-ggplot(penguins_clean_diff, aes(x=sex, y=individual_diff_from_mean, fill=island)) +
+ggplot(penguins_clean_diff, aes(x = sex, y = individual_diff_from_mean, fill = island)) +
  geom_violin()
 ```
 
@@ -272,10 +285,10 @@ Ok, so it looks like we need to account for "island" effect, can we do the diffe
 
 ```{r islandeffect}
 avg_by_sex_and_island <- penguins_clean %>% 
-                            group_by(sex,island) %>% 
-                            summarise(avg=mean(flipper_length_mm))
+                            group_by(sex, island) %>% 
+                            summarise(avg = mean(flipper_length_mm))
 
-individual_diff_from_mean <- array(NA,nrow(penguins_clean))
+individual_diff_from_mean <- array(NA, nrow(penguins_clean))
 for (i in seq(nrow(avg_by_sex_and_island))) {
   ix <- which(penguins_clean$sex == avg_by_sex_and_island$sex[i] &
              penguins_clean$island == avg_by_sex_and_island$island[i])
@@ -288,15 +301,15 @@ for (i in seq(nrow(avg_by_sex_and_island))) {
 Redo with new difference 
 
 ```{r}
-penguins_clean_diff <- cbind(penguins_clean,individual_diff_from_mean)
+penguins_clean_diff <- cbind(penguins_clean, individual_diff_from_mean)
 
 # plot
-ggplot(penguins_clean_diff, aes(x=individual_diff_from_mean)) + 
+ggplot(penguins_clean_diff, aes(x = individual_diff_from_mean)) + 
   geom_histogram()
 
-ggplot(penguins_clean_diff,aes(x=sex,y=individual_diff_from_mean)) + 
+ggplot(penguins_clean_diff, aes(x = sex, y = individual_diff_from_mean)) + 
   geom_violin()
-ggplot(penguins_clean_diff,aes(x=sex,y=individual_diff_from_mean,color=island)) + 
+ggplot(penguins_clean_diff, aes(x = sex, y = individual_diff_from_mean, color = island)) + 
   geom_violin()
 ```
 
@@ -304,26 +317,26 @@ Ok, so we can't ignore the island... let's calculate the difference between male
 
 ```{r}
 avg_by_sex_and_island <- penguins_clean %>% 
-                            group_by(sex,island) %>% 
-                            summarise(avg=mean(flipper_length_mm))
+                            group_by(sex, island) %>% 
+                            summarise(avg = mean(flipper_length_mm))
 
-diff_flipper_length <- mean(avg_by_sex_and_island$avg[avg_by_sex_and_island$sex=="female"] - 
-                     avg_by_sex_and_island$avg[avg_by_sex_and_island$sex=="male"])
+diff_flipper_length <- mean(avg_by_sex_and_island$avg[avg_by_sex_and_island$sex == "female"] - 
+                     avg_by_sex_and_island$avg[avg_by_sex_and_island$sex == "male"])
 
-print(paste("Flipper lenth difference between male and female accounting for island is: ",diff_flipper_length))
+print(paste("Flipper lenth difference between male and female accounting for island is: ", diff_flipper_length))
 print("Is is REAL?")
 ```
 
 Put that code in a function, we're going to use it lots of times. 
 
-```{r bootstrapfunctions message=FALSE, warning=FALSE}
+```{r bootstrapfunctions message = FALSE, warning = FALSE}
 sex_diff = function(png) {
   avg_by_sex_and_island <- png %>% 
-                            group_by(sex,island) %>% 
-                            summarise(avg=mean(flipper_length_mm))
+                            group_by(sex, island) %>% 
+                            summarise(avg = mean(flipper_length_mm))
 
-  diff_flipper_length <- mean(avg_by_sex_and_island$avg[avg_by_sex_and_island$sex=="female"] - 
-                     avg_by_sex_and_island$avg[avg_by_sex_and_island$sex=="male"])
+  diff_flipper_length <- mean(avg_by_sex_and_island$avg[avg_by_sex_and_island$sex == "female"] - 
+                     avg_by_sex_and_island$avg[avg_by_sex_and_island$sex == "male"])
   return(diff_flipper_length)
 }
 
@@ -332,86 +345,108 @@ boot_diff <- array(NA, iter)
 for (i in seq(iter)) {
   smpl_ix <- sample(nrow(penguins_clean), replace = TRUE)
   # create sample from sample dataframe
-  png_boot <- penguins_clean[smpl_ix,]
+  png_boot <- penguins_clean[smpl_ix, ]
   boot_diff[i] <- sex_diff(png_boot)
 }
 ```
 
 
 ```{r visualizingboots}
-ggplot(data.frame(flipper_difference = boot_diff),aes(x=flipper_difference)) + 
+ggplot(data.frame(flipper_difference = boot_diff), aes(x = flipper_difference)) + 
   geom_histogram()
 ```
 
-
-## Let's look at two variables, 
+## Considering 2 variables: permutation
 
 ```{r setupdata, echo = TRUE}
+
+# Simulate new data
+# In this data set, we consider eye blinking and neuron spike rates
+# We will then explore if these two variables are correlated
 n_obs <- 20; 
 neuron.spike.rate <- rnorm(n_obs);
 eye.blinking <- neuron.spike.rate + rnorm(n_obs, 0, 2)
 myexperiment <- data.frame(neuron.spike.rate = neuron.spike.rate, 
-                           eye.blinking =e ye.blinking)
+                           eye.blinking = eye.blinking)
 
+# Have a look at the simulated data
 head(myexperiment)
-
 
 ```
 
-## Plot the data and calculate slope
+### Data exploration
 
-```{r pressure, echo=TRUE}
+```{r pressure, echo = TRUE}
+
+# Plot the data on a scatter plot
 ggplot(myexperiment, aes(x = neuron.spike.rate, y = eye.blinking)) + 
   geom_point() + 
-  geom_smooth(method=lm)
+  geom_smooth(method = lm)
 
-myslope <- function(x,y) {
+# Write a function to estimate the slop of a y ~ x linear regression
+myslope <- function(x, y) {
   mdl <- lm(y ~ x)
   slp <- mdl$coef[[2]]
   return(slp)
 }
 
-real_slope <- myslope(neuron.spike.rate,eye.blinking)
+# Return the slop of eye blinking ~ neuron spike rate
+real_slope <- myslope(neuron.spike.rate, eye.blinking)
 real_slope
 
 ```
 
-## Permute blinking
+### Permutation
 
-```{r slope after single permutaiton, echo=TRUE}
-# here is where the magic happens
-# if they are not correlated, 
-# it didn't matter if the are paired or not. 
-#So we shuffle one of them.  
-perm_indx <- sample(n_obs,replace=FALSE)
+**Permutation** can be used the explore the association between two variables. Permutation consists in the re-arrangement of all or part of a data set. Let's consider two variables x and y. If those two variables are correlated, then a given value of x should be more likely associated to a given value of y. Permuting y independently of x, would thus impact the observed association between x and y. However, if x and y are not independent, permutation would have no impact on the observed association. 
+Permutation is very similar to bootstrapping, but happens **without replacement**.
+
+If two variables are correlated, then it  
+
+```{r slope after single permutaiton, echo = TRUE}
+
+# Here is where the magic happens
+# If they are not correlated, 
+# it did not matter if the are paired or not
+# So we shuffle one of them
+perm_indx <- sample(n_obs, replace = FALSE)
 perm_blink <- eye.blinking[perm_indx];
 
-# add to dataframe with an indicator
-indicator <- as.factor(c(array("perm",n_obs),array("real",n_obs)))
-neuron <- c(neuron.spike.rate,neuron.spike.rate)
-blink <- c(perm_blink,eye.blinking)
-myexperiment <- data.frame(indicator,neuron,blink)
+# Add to data frame with an indicator
+indicator <- as.factor(c(array("perm", n_obs), array("real", n_obs)))
+neuron <- c(neuron.spike.rate, neuron.spike.rate)
+blink <- c(perm_blink, eye.blinking)
+myexperiment <- data.frame(indicator, neuron, blink)
 
-ggplot(myexperiment, aes(x=neuron,y=blink,col=indicator)) + 
-  geom_point(aes(color=indicator)) +
-  geom_smooth(method=lm)
-
+ggplot(myexperiment, aes(x = neuron, y = blink, col = indicator)) + 
+  geom_point(aes(color = indicator)) +
+  geom_smooth(method = lm)
 
 ```
 
-## Repeat many times to get a distribution of possible slopes assuming no connection
+Repeat many times to get a distribution of possible slopes assuming no connection
+
 ```{r}
-perm_slopes <-  array(NA, dim=1000)
+
+perm_slopes <-  array(NA, dim = 1000)
+
 for (i in 1:length(perm_slopes)) {
   perm_blink <- eye.blinking[sample(n_obs)];
-  perm_slopes[i] <- myslope(neuron.spike.rate,perm_blink)
+  perm_slopes[i] <- myslope(neuron.spike.rate, perm_blink)
 }
 
-ggplot(data.frame(perm_slopes),aes(perm_slopes)) + 
+ggplot(data.frame(perm_slopes), aes(perm_slopes)) + 
   geom_histogram() + 
   geom_vline(xintercept = real_slope)
-p_value <- 1-mean(real_slope>perm_slopes)
+
+# We can calculate a p-value
+# which corresponds to the probability of observing the observed
+# difference between the slope and the slop observed from 
+# the permuted samples under the assumption that the two variables
+# are not associated
+p_value <- 1 - mean(real_slope > perm_slopes)
 p_value
+
 ```
  
 

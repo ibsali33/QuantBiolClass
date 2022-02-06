@@ -22,7 +22,7 @@ library(ggplot2)
 
 ```
 
-## R working with probability distributions
+## Probability distributions
 
 The `runif()` command generates n **random numbers from a uniform distribution** between 1 and 0. This can be useful in statistical testing and trend validation. Below we will review the basic syntax for this and related commands. CHeck out R help to learn more about the other options. 
 Note: `runif()` does not mean run if.
@@ -165,9 +165,29 @@ Finish writing this note into the R code that explains why this line of code doe
 ```{r exercise3, eval = FALSE}
 
 sample(speed, size = 100)
+
 # This sample does not work because...
 #
 #
 #
+
+```
+
+## Seed
+
+In some cases, it can be useful to be able to **systematically replicate a script output**, which, at first glance, might seems challenging when working with probability distributions and random values. The way to address this issue is to set up the 'seeds' of R random number generator. You can learn more about seeds at [r-coder.com/set-seed-r](https://r-coder.com/set-seed-r/). This is particularly useful when working on simulated data, for instance when we want to be able to reproduce a given figure. Setting up the seeds is part of the good practices for **reproducible science**.
+
+```{r exercise3, eval = FALSE}
+
+# Note what happens for different values of seed
+
+set.seed(1)
+runif(1)
+
+set.seed(2)
+runif(1)
+
+set.seed(1)
+runif(1)
 
 ```

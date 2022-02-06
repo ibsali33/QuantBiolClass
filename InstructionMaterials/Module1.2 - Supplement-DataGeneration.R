@@ -13,6 +13,9 @@ library(dplyr) # data transformation
 library(reshape2) # data transformation
 library(stringr) # string manipulation
 
+# Set the seed of the random number generator
+set.seed(1)
+
 # For our data set we created a vector of 15 gene names, and vectors
 # of numeric values simulating the number of counts per million for 
 # eight time points. We use 'rnorm()' to select numbers in a random
@@ -105,7 +108,6 @@ practicedata1$TimePoint <- as.numeric(timetrim)
 # Using the 'write.csv()' command create a csv of the data we just created
 # this command requires a data frame and a character vector designating the
 # file name. See example below:
-
 write.csv(practicedata1, file = "GeneExpressionData.csv")
   
   
