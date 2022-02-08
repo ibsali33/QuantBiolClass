@@ -56,7 +56,8 @@ Hint: check out `as.integer()`
 
 ```{r exercise1}
 
-
+randoms <- as.integer(runif(10, min = 0, max = 100))
+print(randoms)
 
 ```
 
@@ -96,7 +97,14 @@ Based on your estimates. Create a vector of TRUE/FALSE values that reports if it
 
 ```{r exercise2}
 
+customers <- rpois(10, 15)
+customers
 
+purchase <- rpois(10, (2/15*customers))
+purchase
+
+paper <- purchase >= 1
+paper
 
 ```
 
@@ -167,8 +175,8 @@ Finish writing this note into the R code that explains why this line of code doe
 sample(speed, size = 100)
 
 # This sample does not work because...
-#
-#
+# you cannot create a subsample that exceeds the size of the original sample
+# without replacement
 #
 
 ```
