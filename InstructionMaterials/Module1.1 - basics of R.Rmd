@@ -62,7 +62,7 @@ R can function as a calculator. Create a new object z that has the value of 2*y-
 
 ```{r exercise1}
 
-
+z <- 2*y-x
 
 ```
 
@@ -90,7 +90,7 @@ Print the value of the third item in legs with indexing.
 
 ```{r exercise2}
 
-
+print(legs[3])
 
 ```
 
@@ -114,7 +114,7 @@ Print the number of legs ants have.
 
 ```{r exercise3}
 
-
+print(legs["ant"])
 
 ```
 
@@ -143,7 +143,9 @@ print out the attribute of spider from your vector
 
 ```{r exercise4}
 
-
+scariness <- c(5, 5, 8, 6)
+names(scariness) <- specie
+scariness["spider"]
 
 ```
 
@@ -181,14 +183,24 @@ has_two_eyes <- eyes == 2
 
 ### Exercise 5
 
-Create a new boolean vector more_than_four_legs and use it to print the names of species with >4 legs. Do it twice, once using the original vector species and once using the names() function
+Create a new boolean vector more_than_four_legs and use it to print the names of species with >4 legs. Do it twice, once using the original legs vector and once using the names() function
 
-```{r}
+```{r exercise5}
 
 # create the vector
-
+more_than_four_legs <- c(FALSE, FALSE, TRUE, TRUE)
+more_than_four_legs <- c(F, F, T, T) # same as above
+names(more_than_four_legs) <- specie
 
 # Print the values
+# Option 1
+legs[more_than_four_legs]
+
+# Option 2
+specie[more_than_four_legs]
+
+# Another view
+legs > 4
 
 
 ```
@@ -210,10 +222,13 @@ print(m)
 
 # You can use indexing to access elements of a matrix. 
 # Use commas to indicate the dimensions
-# What are the following three lines doing? 
+# What are the following three lines doing? Write as a note below each line.
 m[2]
+# call the second item
 m[2, ]
+# call the second row
 m[, 2]
+# call the second column
 
 # Pro-tip: Use short but informative names when creating objects, so you can remember
 # what you have made. Using m for matrix, can be confusing if you have to create more than
@@ -229,7 +244,11 @@ Print all the items that are p3.
 
 ```{r exercise6}
 
+# third item of second row
+m[2, 3]
 
+# all items in column p3
+m[, 3]
 
 ```
 
@@ -261,7 +280,11 @@ Using the approach from above, create new factor with two levels "big" and "smal
 
 ```{r exercise7}
 
+animalsize <- c("big", "big", "small", "small")
 
+size_factor <- factor(animalsize)
+
+by(legs, size_factor, max)
 
 ```
 
@@ -300,18 +323,28 @@ str(penguins)
 penguins[2, 4]
 penguins[2, ]
 
-# Get specific items from one column using it's name
-penguins$sex[6:10]
+# Get specific items from one column using it's name. Call items from
+# a specific column in a data frame with the '$' symbol and indexing.
+penguins$island[6:10]
 
 ```
 
 ### Exercise 8
 
-Using what we learned about grouping with factors, calculate the average penguin weight by island.
+Using what we learned about grouping with factors, calculate the average 
+penguin mass by island.
 
 ```{r exercise8}
 
+island_factor <- factor(penguins$island)
 
+by(penguins$body_mass_g, island_factor, mean)
+
+# What is happening here with these results? 
+# View() the data set and report possible issues as a note below
+
+# NA's in the body mass values make it impossible for R to calculate
+# the mean. Must remove NA values to proceed.
 
 ```
 
@@ -332,7 +365,7 @@ View(animals)
 
 Data can have "wide" and "long" structures, try to use long whenever you can.
 
-```{r} 
+```{r pivotingtables} 
 
 # Using the read.table() command you can create data frames from tab-separated data. 
 wide <- read.table(textConnection(
@@ -354,7 +387,7 @@ long <- melt(wide, id.vars = "Gene")
 View(long)
 
 # Assign names to the newly created columns.
-colnames(long)<-c("Gene", "Treat", "Effect")
+colnames(long) <- c("Gene", "Treat", "Effect")
 View(long)
 
 # R can handle multidimensional data (more than 2D). Many packages are easier to use when 
@@ -369,9 +402,31 @@ Create a new column for fold-increase compared to control
 
 Calculate the max drug effect for each gene (consider making it a factor...)
 
-```{r exercise9}
+```{r exercise9, eval=FALSE, include=FALSE}
 
+# On the wide data set
+wide[3, ] = NA
+wide[3, 2:length(wide)] = wide[1, 2:length(wide)] / wide[1, 2]
+wide[3, 1] = "Actin / Control"
+max(wide[3, 2:length(wide)])
 
+wide[4, ] = NA
+wide[4, 2:length(wide)] = wide[2, 2:length(wide)] / wide[2, 2]
+wide[4, 1] = "Tubulin / Control"
+max(wide[4, 2:length(wide)])
+
+# On the long data set
+ctrlActin = long[long$Gene == "Actin" & long$Treat == "Control", "Effect"]
+ctrlTubulin = long[long$Gene == "Tubulin" & long$Treat == "Control", "Effect"]
+long$EffectNorm = NA
+long[long$Gene == "Actin", "EffectNorm"] = long[long$Gene == "Actin", "Effect"] / ctrlActin
+long[long$Gene == "Tubulin", "EffectNorm"] = long[long$Gene == "Tubulin", "Effect"] / ctrlTubulin
+max(long[long$Gene == "Actin", "EffectNorm"])
+max(long[long$Gene == "Tubulin", "EffectNorm"])
+
+genefactor <- factor(long$Gene)
+
+by(long$EffectNorm, genefactor, max)
 
 ```
 
@@ -381,7 +436,7 @@ Lists can contain a series of objects. While vectors store elements of the same 
 
 ```{r lists}
 
-# Create a named list with a character vetor, a numeric scalar (one numeric value), and a
+# Create a named list with a character string, a numeric scalar (one numeric value), and a
 # vector of integers from 1 to 3.
 my_list <- list(cat = "meow", seven = 7, series = 1:3)
 my_list
@@ -406,6 +461,12 @@ Print the product of the 3rd and 4th elements on your list
 
 ```{r exercise10}
 
+practicelist <- list(strings = c("this", "is", "a", "vector", "of", "strings"), 
+                     neo = matrix(1:9, byrow = TRUE, nrow = 3),
+                     scalar1 = 3,
+                     scalar2 = 6)
+
+print(practicelist[[3]]*practicelist[[4]])
 
 ```
 
@@ -472,7 +533,14 @@ Use a double for loop (or 'nested for loop') to print two of these arrays - in w
 
 ```{r exercise11}
 
+for(i in 1:2) {
+ arraydata <- rnorm(12)
+ TestArray <- array(data = arraydata, dim = c(3, 4)) 
+ for(j in i) {
+         print(TestArray)
+ }
 
+}
 
 ```
 
@@ -535,7 +603,14 @@ Hint: the operator `%%` returns the remainder in a modular division statement.
 
 ```{r exercise12}
 
-
+for(i in 1:10) {
+        oddeven <- i %% 2
+        if (oddeven == 1) {
+                print("Odd")
+        } else {
+                print("Even")
+        }
+}
 ```
 
 ## R basics - Functions
@@ -575,7 +650,16 @@ Hint: look up `is.numeric()` and `length()`.
 
 ```{r exercise13}
 
+scalar_checker <- function(item1, item2){
+        if (is.numeric(item1) & is.numeric(item2) & length(item1) == 1 & length(item2) == 1) {
+                product <- item1*item2
+                return(product)
+        } else {
+                print("Nope, Try Again")
+        }
+}
 
+scalar_checker(4, 3)
 
 ```
 
@@ -585,6 +669,18 @@ Update your function to return product, mean, sum of the two inputs. How can you
 
 ```{r exercise14}
 
+scalar_multireturn <- function(item1, item2){
+        if (is.numeric(item1) & is.numeric(item2) & length(item1) == 1 & length(item2) == 1) {
+                product <- item1*item2
+                avg <- mean(c(item1, item2))
+                added <- item1+item2
+                returnlist <- list(product = product, mean = avg, sum = added)
+                return(returnlist)
+        } else {
+                print("Nope, Try Again")
+        }
+}
 
+scalar_multireturn(4, 8)
 
 ```
