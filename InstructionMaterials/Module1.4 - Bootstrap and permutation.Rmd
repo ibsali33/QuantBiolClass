@@ -27,7 +27,7 @@ Through the session we will increase the complexity of our bootsrapping examples
 to show the scope of its uses and then share a permutation example which will
 calculate a p-value under a null hypothesis.
 
-## Simulating experiments
+## Simulating an experiment
 
 This section mimics actual experimental data, this is *not* a statistical procedure. 
 In this case, we will simulate an experiment where a researcher is observing the 
@@ -109,12 +109,14 @@ df.avg <- myexperiment_replicates %>%
 
 ```
 
-Let's take a look at the results of all our simulated experiments and their
-respective means.
+Let's take a look at the results of our team's experiments.
+
+### Challenge 1
+
+Plot all the experiment replicates using replicate number as the separating facet.
 
 ```{r challenge1}
 
-# Plot all experiment replicates using replicate number as a the separating facet
 ggplot(myexperiment_replicates, aes(vesicles_per_cells)) + 
   geom_histogram(binwidth = 1) + 
   facet_wrap(~replicate) + 
@@ -225,78 +227,153 @@ ggplot(data.frame(avg_boot_sample) , aes(avg_boot_sample)) +
 
 ```
 
-## Considering 2 variables: permutation
+## Considering 2 variables: Permutation
+
+References: 
+Liu et al. 2020. NeuroImage. https://doi.org/10.1016/j.neuroimage.2020.116879
+
+Blink-related oscillations are a recently discovered neurophysiological 
+response associated with spontaneous blinking, distinct from the well-known 
+oculomotor and visual suppression effects. In the following example we are
+going to simulate a data set based on neuron spike signals and eye blinking.
+
+This is not real data and should not reflect real data, but if you would like
+to learn more about blinking and neuronal activity check out the paper linked above!
+
 
 ```{r setupdata, echo = TRUE}
 
-# Simulate new data
-# In this data set, we consider eye blinking and neuron spike rates
-# We will then explore if these two variables are correlated
+# We can start by simulating our data set
+
+# In this data set, we consider two variables: eye blinking and neuron 
+# spike rates. We will then explore if these two variables are correlated.
+
 n_obs <- 20; 
-neuron.spike.rate <- rnorm(n_obs);
+
+# If neuron spike rate is normally distributed with a mean rate of 15
+# spikes per minute and eye blinking can occur before or after the neuron
+# spike, lets design a data set that explores this association
+set.seed(2)
+neuron.spike.rate <- rnorm(n_obs, mean = 15)
 eye.blinking <- neuron.spike.rate + rnorm(n_obs, 0, 2)
 myexperiment <- data.frame(neuron.spike.rate = neuron.spike.rate, 
                            eye.blinking = eye.blinking)
 
-# Have a look at the simulated data
-head(myexperiment)
+# Have a look at the simulated data. As a table this isn't so useful.
+# Lets use the skills we learned in previous sessions to explore this
+# data set.
+View(myexperiment)
 
 ```
 
-### Data exploration
+### Challenge 2
 
-```{r pressure, echo = TRUE}
+Explore the data by plotting. We want to be able to see the individual
+data points and also a visual linear model association (recall geom_smooth()). 
+Include descriptive labels including a title, subtitle, and axis names.
 
-# Plot the data on a scatter plot
+```{r challenge2, echo = TRUE}
+# Plot the data on a scatter plot, include a title and axis labels
 ggplot(myexperiment, aes(x = neuron.spike.rate, y = eye.blinking)) + 
   geom_point() + 
-  geom_smooth(method = lm)
+  geom_smooth(method = lm) +
+  labs(title = "Exploring Associations",
+       subtitle = "Eye Blinks and Neuron Spike Rate",
+       x = "Neuron Spike Rate per Minute",
+       y = "Blinks per Minute")
+```
 
-# Write a function to estimate the slop of a y ~ x linear regression
+## Intro to Linear Models
+
+Linear models can help assess correlations and other characteristics when
+comparing two variables side-by-side. In the example above, we used `ggplot()`
+to create a visual linear model. Using R we can quickly calculate many
+characteristics related to our linear models.
+
+```{r linearmodel}
+
+# When constructing a linear model in R, you can use the 'lm()' command
+# if you assign lm() to an object you can see all the information it collects
+# from your model. 
+
+testmodel <- lm(myexperiment$eye.blinking ~ myexperiment$neuron.spike.rate)
+
+testmodel
+
+# notice that our testmodel object is a list that contains 12 components
+# including coefficients (coef), residuals and a variety of other items
+# if you a assign a lm() to an object you can extract components of the 
+# model for reports. 
+
+testmodel$coefficients
+
+```
+
+### Challenge 3: Linear Model Functions
+
+Create a function that returns the slope of the linear model.
+
+```{r challenge3, echo = TRUE}
+# Write a function that returns the slope of a y ~ x linear regression
 myslope <- function(x, y) {
-  mdl <- lm(y ~ x)
-  slp <- mdl$coef[[2]]
-  return(slp)
+  model <- lm(y ~ x) # lm creates a list containing model characteristics
+  slope <- model$coefficients[[2]] # the slope value is the 2nd item listed under coef
+  return(slope)
 }
 
-# Return the slop of eye blinking ~ neuron spike rate
+# Return the slope of the association between neuron spike rate and eye blinking
 real_slope <- myslope(neuron.spike.rate, eye.blinking)
 real_slope
 
 ```
 
-### Permutation
+## Permutation
 
-**Permutation** can be used the explore the association between two variables. Permutation consists in the re-arrangement of all or part of a data set. Let's consider two variables x and y. If those two variables are correlated, then a given value of x should be more likely associated to a given value of y. Permuting y independently of x, would thus impact the observed association between x and y. However, if x and y are not independent, permutation would have no impact on the observed association. 
+**Permutation** can be used the explore the association between two variables. 
+Permutation consists in the re-arrangement of all or part of a data set. Let's 
+consider two variables x and y. If those two variables are correlated, then a 
+given value of x should be more likely associated to a given value of y. Permuting 
+y independently of x, would thus impact the observed association between x and y. 
+However, if x and y are not independent, permutation would have no impact on the 
+observed association. 
+
 Permutation is very similar to bootstrapping, but happens **without replacement**.
+Importantly, if the variables are not correlated, it wouldn't matter if we shuffle
+one of them. If the variables are correlated, the association would break.
 
-If two variables are correlated, then it  
 
-```{r slope after single permutaiton, echo = TRUE}
+```{r slope_after_permutaiton, echo = TRUE}
 
-# Here is where the magic happens
-# If they are not correlated, 
-# it did not matter if the are paired or not
-# So we shuffle one of them
-perm_indx <- sample(n_obs, replace = FALSE)
-perm_blink <- eye.blinking[perm_indx];
+# create a permutation index sample, and a new object with the values rearragned
+perm_indx <- sample(n_obs, replace = FALSE) # new index
+perm_blink <- eye.blinking[perm_indx]; # rearranged data
 
 # Add to data frame with an indicator
 indicator <- as.factor(c(array("perm", n_obs), array("real", n_obs)))
-neuron <- c(neuron.spike.rate, neuron.spike.rate)
-blink <- c(perm_blink, eye.blinking)
-myexperiment <- data.frame(indicator, neuron, blink)
+neuron <- c(neuron.spike.rate, neuron.spike.rate) # order does not change
+blink <- c(perm_blink, eye.blinking) # order changes
+myexperiment <- data.frame(indicator, neuron, blink) # assemble data frame
 
-ggplot(myexperiment, aes(x = neuron, y = blink, col = indicator)) + 
+
+# Plot the data
+ggplot(myexperiment, aes(x = neuron, y = blink, color = indicator)) + 
   geom_point(aes(color = indicator)) +
-  geom_smooth(method = lm)
+  geom_smooth(method = lm) + 
+  labs(title = "Comparing Permuted and Original Dataset",
+       x = "Neuronal Spikes per Minute",
+       y = "Blinks per Minute")
 
 ```
 
-Repeat many times to get a distribution of possible slopes assuming no connection
+Depending on the results of your test, the results may be dramatic or subtle.
+Similar to bootstrapping, permutation testing is often scaled up dramatically
+and summarized. This would essentially give us a level of confidence that our
+result is real based on the results of repeated permutation testing.
 
-```{r}
+Using a smiliar approach to our bootstrapping test, repeat the permutation test
+1000 times to get a distribution of possible slopes assuming no connection.
 
+```{r permutation_atscale}
 perm_slopes <-  array(NA, dim = 1000)
 
 for (i in 1:length(perm_slopes)) {
@@ -304,16 +381,38 @@ for (i in 1:length(perm_slopes)) {
   perm_slopes[i] <- myslope(neuron.spike.rate, perm_blink)
 }
 
+```
+
+### Challenge 4
+
+Create a plot showing the distribution of permuted slopes to see how
+closely it aligns with the original slope.
+
+```{r challenge4}
+
 ggplot(data.frame(perm_slopes), aes(perm_slopes)) + 
   geom_histogram() + 
   geom_vline(xintercept = real_slope)
 
-# We can calculate a p-value
-# which corresponds to the probability of observing the observed
-# difference between the slope and the slop observed from 
-# the permuted samples under the assumption that the two variables
-# are not associated
+```
+
+## Permutation p-values
+
+We can calculate a p-value which corresponds to the probability 
+of observing a difference between the original slope and the 
+permuted slope samples. If we are testing the assumption that 
+the two variables are NOT associated, then we subtract that value
+from 1 to obtain our p-value
+
+```{r permute_pval}
+
 p_value <- 1 - mean(real_slope > perm_slopes)
+
+# notice what we are calculating here: mean(real_slope > perm_slopes)
+# in this case we are calculating the avg where TRUE = 1 and FALSE = 0
+# this returns a probability where the closer we are to 1 the more
+# frequently the permutation test "broke" the association. 
+
 p_value
 
 ```
