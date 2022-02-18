@@ -1,0 +1,65 @@
+---
+title: "Assignment 1 - linear models"
+output:
+  html_document:
+    toc: TRUE
+    Toc_float: TRUE
+---
+
+## Collect data.  
+
+Collect data about US states: 
+
+https://worldpopulationreview.com/states 
+scroll down to their "State Listing Articles" click on articles of interest, many of them will have links to csv files you can download. For example: 
+blob:https://worldpopulationreview.com/37b7dc59-9bc3-48f0-a4a3-8a2e2b000d6a
+
+You need to collect data on at least 10 different attributes. Some could be continuous and some categorical (midwest). 
+
+
+## Define research questions. 
+Decide what you want to study, i.e. chose one (or a few) dependent variables and other that are independent. 
+
+Build linear models, generate plots and make condifent statement. 
+
+### Submissson. 
+Please submit an html/pdf (i.e. preview or knitt your notebook). The code should be annotated with proper markup and comments in the text. Show figures for all key steps as needed. 
+
+Load packages needed for analysis
+```{r packages}
+## load the packages necessary for your analysis
+
+
+
+```
+
+Read data
+```{r dataimport}
+## import the data for your analysis
+
+
+```
+
+Include any data cleaning steps
+```{r datacleaning}
+
+
+```
+
+Exploratory figures 
+```{r dataviz1}
+
+```
+
+Define research questions. 
+* This is questions 1
+* justrified by reason 2. 
+
+What statistics do you need to do to
+check assumptsions etc. 
+```{r stat_testing}
+
+```
+
+
+
