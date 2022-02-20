@@ -7,88 +7,77 @@ output:
  toc_float: TRUE
 ---
 
- 
-Generate some random time series
-```{r}
-T=1:3600
-R=sin(T/300)
-O=R+rnorm(length(T))
-plot(T,O)
-lines(T,R,col='red')
-```
+## Setup
 
-Simple moving average (kernel smoothing)
-```{r}
-bS=ksmooth(T,O,kernel = "box")
-plot(T,O)
-lines(T,R,col='red')
-lines(T,bS$y,col='blue')
-```
+In this module, we will use the `ggplot2` package for plotting.
 
-Simple moving average (kernel smoothing)
-```{r}
-bS=ksmooth(T,O,kernel = "box",bandwidth = 60)
-plot(T,O)
-lines(T,R,col='red')
-lines(T,bS$y,col='blue')
+```{r setup, include = FALSE}
 
-plot(T,R,type = "line",col="red")
-lines(T,bS$y,col='blue')
-```
+knitr::opts_chunk$set(echo = TRUE)
 
-Simple moving average (kernel smoothing)
-```{r}
-bw=c(1,5,10,25,50,100,250,500,1000,2000)
-for (i in 1:length(bw)) {
-  nS=ksmooth(T,O,kernel = "normal",bandwidth = bw[i])
-  plot(T,R,type = "l",col="red",main = paste("BW=",bw[i]))
-  lines(T,nS$y,col='blue')
-}
-```
-
-True time series anbalysis ()
-
-```{r}
-births <- scan("http://robjhyndman.com/tsdldata/data/nybirths.dat")
-birthstimeseries <- ts(births, frequency=12, start=c(1946,1))
-plot.ts(birthstimeseries)
-```
-
-Decompose to components
-```{r}
-birthstimeseriescomponents <- decompose(birthstimeseries)
-plot(birthstimeseriescomponents)
-```
-
-Remove seasonal / trend component
-```{r}
-birthstimeseriesseasonallyadjusted <- birthstimeseries - birthstimeseriescomponents$seasonal
-plot(birthstimeseriesseasonallyadjusted)
-
-birthstimeseriesdetrended <- birthstimeseries - birthstimeseriescomponents$trend
-plot(birthstimeseriesdetrended)
+library(ggplot2) # plotting library
 
 ```
 
-Autocorrelation - demo
-```{r}
-shifts=seq(1,10,1)
-r=array(dim=length(shifts))
-B=array(birthstimeseriesdetrended)
-for (i in 1:length(shifts)) {
-  plot(B[10:100],type="l")
-  lines(B[shifts[i]+(10:100)],col="red")
-  r[i]=cor(B[10:100],B[shifts[i]+(10:100)])
-}
-plot(shifts,r)
-```
+## Data exploration
 
+### Loading and printing the data
 
-Autocorrelation - as a function
-```{r}
+In this module, as in Module 2.1, we will use to use the GeneExpression data we simulated in Module 1.2 Supplement, and visually explored in module 1.3. 
 
-ac = acf(birthstimeseriesdetrended, lag.max=50,na.action = na.pass)
+This data set contains information on gene expression (MeanCounts, representing measurements of protein quantities), gene transcription (MeanCountsTranscipt, representing measurements of mRNA quantities), and protein activity (MeanActivity, representing measurements of protein activity). Transcription levels are classically easier to measure (measured by RNA sequencing) than protein expression or activity levels (often measured by immuno-labelling such as immuno-histochemistry or flow-cytometry).
+
+```{r dummydataimport}
+
+# Load data
+dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
+
+# Preview the data
+head(dummydata)
 
 ```
 
+In this module, we aim to measures the association between protein activity and the output of qualitative, binary test (returning 0 or 1, for non-detected or detected activity).
 
+### Visualizing the data
+
+```{r visualassessment}
+
+# Use ggplot to create a scatter plot comparing transcriptions and expression levels
+# length for the species
+ggplot(data = dummydata, aes(x = MeanActivity, y = MeanActivityQuali)) +
+  geom_point() +
+  labs(x = "Protein Activity",
+       y = "Activity Detection") 
+
+# Add a logistic smooth line
+ggplot(data = dummydata, aes(x = MeanActivity, y = MeanActivityQuali)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "binomial")) +
+  labs(x = "Protein Activity",
+       y = "Activity Detection") 
+
+```
+
+## Testing correlations with logistic regressions
+
+Logistic regressions are used to measure the strength of association 
+between a quantitative variable and a qualitative variable. Logistic regressions belong to generalized linear models. With such models the data are transformed before being fitted, and then use the same approach as classical logistic regressions. With logistical regressions (fit to binomial data), a logit function is applied to the response variable fit the model `Y = 1 / (exp(-(a + b X)))`.
+Generalized linear regressions are obtained with the `glm()` function.
+
+```{r lm}
+
+# glm() function to fit the generalized linear model to the data
+# Here we use the 'binomial' family 
+glm = glm(MeanActivityQuali ~ MeanActivity, data = dummydata, family = "binomial")
+
+# Use summary to obtain the estimates for the parameters a and b, as well as the p-value
+summary(glm)
+
+# Extract the coefficient alpha and beta
+coefficients(glm)
+
+# Back-transform the coefficient with the inverse-logit function
+exp(coefficients(glm))/(1+exp(coefficients(glm)))
+
+```

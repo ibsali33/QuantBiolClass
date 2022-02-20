@@ -1,5 +1,5 @@
 ---
-title: "Module 2.1 - Correlations"
+title: "Module 2.2 - Linear regressions"
 author: "A. Gamble, I. Ali, N. Zaitlen, R. Wollman"
 output: 
  html_document:
@@ -29,11 +29,11 @@ This data set contains information on gene expression (MeanCounts, representing 
 
 ```{r dummydataimport}
 
-# using the read.csv() command import the GeneExpressionData.csv file
+# Load data
 dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
 
-# notice that the data is in long form.
-View(dummydata)
+# Preview the data
+head(dummydata)
 
 ```
 
@@ -46,7 +46,6 @@ Let's start by focusing on the association between gene expression levels and pr
 ```{r visualassessment}
 
 # Use ggplot to create a scatter plot comparing transcriptions and expression levels
-# length for the species
 # Add a linear smooth line
 ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity)) +
   geom_point() +
@@ -67,7 +66,7 @@ ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity)) +
 ## Testing correlations with linear regressions
 
 Linear regressions are used to measure the strength and direction of association 
-between two variables. Regression is different from correlation because it puts variables into equation and thus explain relationship between them. Linear regressions for instance fit the model `Y = a + b X` to the data. Linear regressions are run under the assumptions of normal distribution and homoscedasticity of the residuals (difference between the observed value and the value predicted by the model).
+between two quantitative variables. Regression is different from correlation because it puts variables into equation and thus explain relationship between them. Linear regressions for instance fit the model `Y = a + b X` to the data. Linear regressions are run under the assumptions of normal distribution and homoscedasticity of the residuals (difference between the observed value and the value predicted by the model).
 Linear regressions are obtained with the `lm()` function, which uses the least square method.
 
 When we fit the model `Y = a + b X`, the `lm()` returns an estimate (with a confidence interval) for the intercept (a) and the slope (b), as well as the p-value assessing whether these estimates as significantly different from 0.
@@ -91,18 +90,19 @@ plot(resid(lm))
 
 We now want to assess whether gene expression level is a good predictor of protein activity level. Repeat the same analysis to assess the association between MeanCounts (expression level) and MeanActivity (activity level). How do you interpret the results?
 
-```{r lm}
+```{r exercise1}
 
-# lm() function to fit the linear model to the data
-lm = lm(formula = MeanCounts ~ MeanCountsTranscript, data = dummydata)
+# Linear regression
 
-# Use summary to obtain the estimates for the parameters a and b, as well as the p-value
-summary(lm)
+
+
+# Print summary
+
+
 
 # Plot the residuals to (visually) check that the assumptions are verified
-# Here we use the plot() function instead of ggplot() so we do not have to 
-# create a data.frame
-plot(resid(lm))
+
+
 
 ```
 
@@ -129,7 +129,23 @@ AIC(lm, lm_time)
 
 ```
 
+## Solutions to exercises
 
-### Going further
+#### Exercise 1 
+
+```{r exercise1solution}
+
+# Linear regression
+lm = lm(formula = MeanCounts ~ MeanActivity, data = dummydata)
+
+# Print summary
+summary(lm)
+
+# Plot the residuals to (visually) check that the assumptions are verified
+plot(resid(lm))
+
+```
+
+## Going further
 
 If you want more practice, you can use run similar analyses on the built-in Iris data set. You can for instance explore the correlation between petal length and petal width, with and without a species effect.

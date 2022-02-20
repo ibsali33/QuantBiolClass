@@ -32,7 +32,7 @@ This data set contains information on gene expression (MeanCounts, representing 
 # Using the read.csv() command import the GeneExpressionData.csv file
 dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
 
-# Notice that the data is in long form.
+# View the data
 View(dummydata)
 
 ```
@@ -74,7 +74,7 @@ ggplot(data = dummydata, aes(x = MeanCountsTranscript, y = MeanCounts, color = G
 ### Pearson's correlation 
 
 Pearson's correlation is used to measure the strength and direction of association 
-between two variables. Pearson's coefficient corresponds to the ratio between the covariance of two variables and the product of their standard deviations. It is essentially a normalized measurement of the covariance, such that the result always has a value between −1 and 1. This measure can only reflect a **linear correlation** of variables.
+between two quantitative variables. Pearson's coefficient corresponds to the ratio between the covariance of two variables and the product of their standard deviations. It is essentially a normalized measurement of the covariance, such that the result always has a value between −1 and 1. This measure can only reflect a **linear correlation** of variables.
 Pearson's correlation coefficient can be obtained using the `cor()` function by setting to method to `pearson`. 
 
 ```{r pearson-cor}
@@ -100,7 +100,7 @@ cor.test(dummydata$MeanCountsTranscript, dummydata$MeanCounts, # Variables betwe
 
 ### Spearman's rank correlation
 
-Spearman's rank correlation is a non-parametric equivalent to Pearson's correlation. It is used to measure the strength and direction of association between two ranked variables. Spearman's correlation assesses **monotonic relationships (whether linear or not)**.
+Spearman's rank correlation is a non-parametric equivalent to Pearson's correlation. It is used to measure the strength and direction of association between two ranked quantitative variables. Spearman's correlation assesses **monotonic relationships (whether linear or not)**.
 Spearman's rank correlation coefficient can also be obtained using the `cor()` function or the `cor.test()` function by setting to method to `spearman`.
 
 ```{r spearman}
@@ -282,6 +282,6 @@ print('This analysis suggest that gene expression levels and protein activity le
 
 ```
 
-### Going further
+## Going further
 
 If you want more practice, you can use run similar analyses on the built-in Iris data set. The Iris data set was originally collected in 1890 by Sir Ronald Aylmer Fischer, also the person who invented the Fischer's exact test, maximum likelihood estimation and analysis of variance tests. Use of this data set is so common in statistical training, it has been developed into a built in package and data set that can be easily loaded and analyzed in R. This data set contains flower characteristics for three species of plants: setosa, virginica and versicolor. The characteristics include width and length characteristics of the flowers and sepals (the leaf under the flower). In total the data set contains 150 observations of 5 variables. You can for instance explore the correlation between petal length and petal width.

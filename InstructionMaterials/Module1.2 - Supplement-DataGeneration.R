@@ -113,7 +113,7 @@ practicedata1$TimePoint <- as.numeric(timetrim)
 # epsilon follows a normal distribution centered on 0 (mean epsilon = 0),
 # with a standard deviation of trans_var
 # More info about random variables in Module 1.2
-alpha = 100
+alpha = 100000
 beta = 10
 trans_var = 7000
 epsilon = rnorm(n = length(practicedata1$MeanCounts), mean = 0, sd = trans_var)
@@ -132,9 +132,27 @@ trans_var = 100
 epsilon = rnorm(n = length(practicedata1$MeanCounts), mean = 0, sd = trans_var)
 practicedata1$MeanActivity <- alpha + practicedata1$MeanCounts * beta + epsilon
 
+# Add qualitative (yes/no) protein activity data MeanActivityQuali
+# This variable is binomial (0 or 1)
+# The higher the activity, the most likely it is to be detected (measured as 1)
+# We use a logistic function to obtain the probability of the outcome being 1
+# probability P(MeanActivityQuali = 1) = 1 / (1 + exp(-(alpha + beta * MeanActivity + epsilon)))
+# with epsilon corresponding to individual protein activity measurement 
+# epsilon follows a normal distribution centered on 0 (mean epsilon = 0),
+# with a standard deviation of trans_var
+alpha = -1
+beta = 0.0012
+trans_var = 0.0005
+epsilon = rnorm(n = length(practicedata1$MeanActivity), mean = 0, sd = trans_var)
+# Probability P(MeanActivityQuali = 1)
+prob = 1 / (1 + exp(-(alpha + beta * practicedata1$MeanActivity + epsilon)))
+# Outcome
+practicedata1$MeanActivityQuali = NA
+for (ii in 1:length(practicedata1$MeanActivityQuali)){
+  practicedata1$MeanActivityQuali[ii] = rbinom(1, 1, prob[ii])
+}
+
 # Using the 'write.csv()' command create a csv of the data we just created
 # this command requires a data frame and a character vector designating the
 # file name. See example below:
 write.csv(practicedata1, file = "InstructionMaterials/GeneExpressionData.csv")
-  
-  
