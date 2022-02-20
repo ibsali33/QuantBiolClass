@@ -314,6 +314,7 @@ testmodel$coefficients
 Create a function that returns the slope of the linear model.
 
 ```{r challenge3, echo = TRUE}
+
 # Write a function that returns the slope of a y ~ x linear regression
 myslope <- function(x, y) {
   model <- lm(y ~ x) # lm creates a list containing model characteristics
@@ -342,9 +343,9 @@ Importantly, if the variables are not correlated, it wouldn't matter if we shuff
 one of them. If the variables are correlated, the association would break.
 
 
-```{r slope_after_permutaiton, echo = TRUE}
+```{r slope_after_permutation, echo = TRUE}
 
-# create a permutation index sample, and a new object with the values rearragned
+# create a permutation index sample, and a new object with the values rearranged
 perm_indx <- sample(n_obs, replace = FALSE) # new index
 perm_blink <- eye.blinking[perm_indx]; # rearranged data
 
@@ -370,10 +371,11 @@ Similar to bootstrapping, permutation testing is often scaled up dramatically
 and summarized. This would essentially give us a level of confidence that our
 result is real based on the results of repeated permutation testing.
 
-Using a smiliar approach to our bootstrapping test, repeat the permutation test
+Using a similar approach to our bootstrapping test, repeat the permutation test
 1000 times to get a distribution of possible slopes assuming no connection.
 
 ```{r permutation_atscale}
+
 perm_slopes <-  array(NA, dim = 1000)
 
 for (i in 1:length(perm_slopes)) {

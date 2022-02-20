@@ -23,55 +23,50 @@ library(ggplot2) # plotting library
 
 ### Loading and printing the data
 
-For this example, we are going to use the built-in Iris data set. The Iris data set was originally
-collected in 1890 by Sir Ronald Aylmer Fischer, also the person who invented the Fischer's 
-exact test, maximum liklihood estimation and analysis of variance tests. Use of this data set
-is so common in statistical training, it has been developed into a built in package and data
-set that can be easily loaded and analyzed in R.
+For this example, we are going to use the GeneExpression data we simulated in Module 1.2 Supplement, and vizualy explored in module 1.3. 
 
-This data set contains flower characteristics for three species of plants: setosa, virginica and 
-versicolor. The characteristics include width and length characteristics of the flowers and sepals
-(the leaf under the flower). In total the data set contains 150 observations of 5 variables. 
+This data set contains information on gene expression (MeanCounts, representing measurements of protein quantities), gene transcription (MeanCountsTranscipt, representing measurements of mRNA quantities), and protein activity (MeanActivity, representing measurements of protein activity). Transcription levels are classically easier to measure (measured by RNA sequencing) than protein expression or activity levels (often measured by immuno-labelling such as immuno-histochemistry or flow-cytometry).
 
-```{r data}
+```{r dummydataimport}
 
-head(iris)
+# using the read.csv() command import the GeneExpressionData.csv file
+dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
+
+# notice that the data is in long form.
+View(dummydata)
 
 ```
 
-Below, lets start by exploring potential associations between petal length and width, and between 
-sepal length and width.
+In this module, we aim to assess whether those three variables are correlated or not. If those measures are correlated, then our experimenter could measure only transcription levels to predict expression and activity levels. 
+
+Let's start by focusing on the association between gene expression and trasncription levels.
 
 ### Visualizing the data
 
 ```{r visualassessment}
 
 # use ggplot to make a histogram to view the distribution of petal.length values
-ggplot(irisdata, aes(Petal.Length)) +
+ggplot(data = dummydata, aes(x = MeanCountsTranscript)) +
   geom_histogram() +
-  labs(title = "Iris Data - Petals",
-       x = "Petal Length",
+  labs(x = "Transcription level",
        y = "Counts") 
 
 # add a fill color to distinguish between species
-ggplot(irisdata, aes(Petal.Length, fill = Species)) +
+ggplot(data = dummydata, aes(x = MeanCountsTranscript, fill = GeneNames)) +
   geom_histogram() +
-  labs(title = "Iris Data - Petals",
-       x = "Petal Length",
+  labs(x = "Transcription level",
        y = "Counts") +
-  scale_fill_discrete(name = "Species", labels = c("Setosa", "Versicolor", "Virginica"))
+  scale_fill_discrete(name = "Gene")
 
 # use ggplot to create a scatter plot comparing petal width and petal
 # length for the species
 
 # use scale_color_discreet to edit the name and labels for your legend
-ggplot(irisdata, aes(x = Petal.Width, y = Petal.Length, color = Species)) +
+ggplot(data = dummydata, aes(x = MeanCountsTranscript, y = MeanCounts, color = GeneNames)) +
   geom_point() +
-  labs(title = "Iris Data - Petals",
-       x = "Petal Width",
-       y = "Petal Length") +
-  scale_color_discrete(name = "Species", labels = c("Setosa", "Versicolor", "Virginica"))
-
+  labs(x = "Transcription level",
+       y = "Expression level") +
+  scale_color_discrete(name = "Gene")
 
 ```
 
@@ -86,7 +81,7 @@ between two variables. The Pearson's correlation coefficient can be obtained usi
 ```{r pearson-cor}
 
 # cor() function to calculate the correlation coefficient
-cor(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+cor(dummydata$MeanCountsTranscript, dummydata$MeanCounts, # Variables between which we want to measure the association
     method = c("pearson") # Method
     ) 
 
@@ -98,7 +93,7 @@ Correlation coefficients can also be obtained using the `cor.test()` function, w
 
 # cor.test() function to calculate the correlation coefficient
 # and the associated confidence interval
-cor.test(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+cor.test(dummydata$MeanCountsTranscript, dummydata$MeanCounts, # Variables between which we want to measure the association
          method = "pearson" # Method
          )
 
@@ -111,25 +106,55 @@ The Spearman's rank correlation is a non-parametric equivalent to Pearson's corr
 ```{r spearman}
 
 # cor() function to calculate the correlation coefficient
-cor(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+cor(dummydata$MeanCountsTranscript, dummydata$MeanCounts, # Variables between which we want to measure the association
     method = c("spearman") # Method
     ) 
 
 # cor.test() function to calculate the correlation coefficient
 # and the associated confidence interval
-cor.test(iris$Petal.Length, iris$Petal.Width, # Variables between which we want to measure the association
+cor.test(dummydata$MeanCountsTranscript, dummydata$MeanCounts, # Variables between which we want to measure the association
          method = "spearman" # Method
          )
 
 ```
-
 Note that, as Spearman's method is based on ranks, it cannot compute exact p-value when there are tied values (i.e., when two are more observations are equal).
 
-### Permutations
+#### Exercise 1 
 
-Add explanations...
+We now want to assess whether gene expression level is a good predictor of protein activity level. Repeat the same analysis to assess the association between MeanCounts (expression level) and MeanActivity (activity level). How do you interpret the results?
 
-We start by writing a function that calculates the p-value and correlation coefficient using permutations. 
+```{r exercise1}
+
+# Histogram of MeanActivity, colored by GeneNames
+# Make sure the axis names and legend are explicit
+
+
+
+# Scatter plot of MeanActivity ~ MeanCounts, colored by GenesNames
+# Make sure the axis names and legend are explicit
+
+
+
+# Pearson's correlation
+
+
+
+# Spearman's ranked correlation
+
+
+
+# Notice the difference (or not) between the outcome of the two tests
+
+
+# Interpretation
+print('This analysis suggest that gene expression levels and protein activity levels are / are not correlated. Hence, gene expression level is / is not a good predictor of protein activity.')
+
+```
+## Testing correlation with permutations (extra acivity)
+
+In this section, we are going to apply what we learned in Module 1.4 regarding permutations to the GeneExpression data set. As above, we aim to assess whether gene transcription, gene expression and protein activity levels are associated.
+
+We start by writing a function that calculates the p-value and correlation coefficient using permutations. For additional explanations, go back to Module 1.4.
 
 ```{r permutations-function}
 
@@ -152,15 +177,15 @@ my_perm_corr_test = function(x, y, iter = 1000) {
 
 ```
 
-We can now apply our `my_perm_corr_test()` to the petal data. 
+We can now apply our `my_perm_corr_test()` to the data. 
 
-```{r permutations-petals}
+```{r permutations}
 
 # Execute the my_perm_corr_test() function
-prmtst = my_perm_corr_test(iris$Petal.Length, iris$Petal.Width, iter = 1000)
+prmtst = my_perm_corr_test(dummydata$MeanCountsTranscript, dummydata$MeanCounts, iter = 1000)
 
 # Visualize the distribution of the permutations
-# the output of our permutation function is not a data frame so we must
+# The output of our permutation function is not a data frame so we must
 # convert it to a data frame to plot in ggplot
 ggplot(data.frame(prmtst), aes(r_perm)) +
   geom_histogram()
@@ -171,12 +196,78 @@ prmtst$r_real
 
 ```
 
-We then apply our `my_perm_corr_test()` to the sepal data. 
+#### Exercise 2
 
-```{r permutations-sepals}
+Repeat the same analysis to assess the association between MeanCounts (expression level) and MeanActivity (activity level). How do you interpret the results?
+
+```{r exercise2}
 
 # Execute the my_perm_corr_test() function
-prmtst = my_perm_corr_test(iris$Sepal.Length, iris$Sepal.Width, iter = 1000)
+
+
+
+# Visualize the distribution of the permutations
+
+
+
+# Print the calculated p-value and correlation coefficient
+
+
+
+# Interpretation
+print('This analysis suggest that gene expression levels and protein activity levels are / are not correlated. Hence, gene expression level is / is not a good predictor of protein activity.')
+
+```
+
+
+## Solutions to exercises
+
+#### Exercise 1 
+
+```{r exercise1solution}
+
+# Histogram of MeanActivity, colored by GeneNames
+# Make sure the axis names and legend are explicit
+ggplot(data = dummydata, aes(x = MeanActivity, fill = GeneNames)) +
+  geom_histogram() +
+  labs(x = "Transcription level",
+       y = "Counts") +
+  scale_fill_discrete(name = "Gene")
+
+# Scatter plot of MeanActivity ~ MeanCounts, colored by GenesNames
+# Make sure the axis names and legend are explicit
+ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity, color = GeneNames)) +
+  geom_point() +
+  labs(x = "Transcription level",
+       y = "Expression level") +
+  scale_color_discrete(name = "Gene")
+
+# Pearson's correlation
+cor.test(dummydata$MeanCounts, dummydata$MeanActivity, 
+         method = "pearson" 
+         )
+
+# Spearman's ranked correlation
+cor.test(dummydata$MeanCounts, dummydata$MeanActivity, 
+         method = "spearman" 
+         )
+
+# We prefer the function cor.test because it also report the confidence interval
+# of the correlation coefficient
+
+# Notice the difference (or not) between the outcome of the two tests
+
+# Interpretation
+print('This analysis suggest that gene expression levels and protein activity levels are correlated. Hence, gene expression level is a good predictor of protein activity.')
+
+```
+
+#### Exercise 2
+
+```{r exercise2solution}
+
+# Execute the my_perm_corr_test() function
+prmtst = my_perm_corr_test(dummydata$MeanActivity, dummydata$MeanCounts, iter = 1000)
 
 # Visualize the distribution of the permutations
 ggplot(data.frame(prmtst), aes(r_perm)) +
@@ -186,4 +277,12 @@ ggplot(data.frame(prmtst), aes(r_perm)) +
 prmtst$pval
 prmtst$r_real 
 
+# Interpretation
+print('This analysis suggest that gene expression levels and protein activity levels are correlated. Hence, gene expression level is a good predictor of protein activity.')
+
 ```
+
+
+### Going further
+
+If you want more practice, you can use run similar analyses on the built-in Iris data set. The Iris data set was originally collected in 1890 by Sir Ronald Aylmer Fischer, also the person who invented the Fischer's exact test, maximum likelihood estimation and analysis of variance tests. Use of this data set is so common in statistical training, it has been developed into a built in package and data set that can be easily loaded and analyzed in R. This data set contains flower characteristics for three species of plants: setosa, virginica and versicolor. The characteristics include width and length characteristics of the flowers and sepals (the leaf under the flower). In total the data set contains 150 observations of 5 variables. You can for instance explore the correlation between petal length and petal width.

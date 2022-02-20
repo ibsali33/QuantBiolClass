@@ -105,9 +105,36 @@ timetrim <- str_sub(timetrim, 5, -1)
 # data frame.
 practicedata1$TimePoint <- as.numeric(timetrim)  
 
+# Add transcript data MeanCountsTranscript
+# Here we consider that transcription level (MeanCountsTranscript) is linked to
+# expression level (MeanCounts) through a linear function 
+# MeanCountsTranscript = alpha + beta * MeanCounts + epsilon
+# with epsilon corresponding to individual gene variation in translation (from transcript to protein) measurement
+# epsilon follows a normal distribution centered on 0 (mean epsilon = 0),
+# with a standard deviation of trans_var
+# More info about random variables in Module 1.2
+alpha = 100
+beta = 10
+trans_var = 7000
+epsilon = rnorm(n = length(practicedata1$MeanCounts), mean = 0, sd = trans_var)
+practicedata1$MeanCountsTranscript <- alpha + practicedata1$MeanCounts * beta + epsilon
+
+# Add protein activity data MeanActivity
+# Here we consider that transcription level (MeanActivity) is linked to
+# expression level (MeanCounts) through a linear function 
+# MeanActivity = alpha + beta * MeanCounts + epsilon
+# with epsilon corresponding to individual protein activity measurement 
+# epsilon follows a normal distribution centered on 0 (mean epsilon = 0),
+# with a standard deviation of trans_var
+alpha = 50
+beta = 10
+trans_var = 100
+epsilon = rnorm(n = length(practicedata1$MeanCounts), mean = 0, sd = trans_var)
+practicedata1$MeanActivity <- alpha + practicedata1$MeanCounts * beta + epsilon
+
 # Using the 'write.csv()' command create a csv of the data we just created
 # this command requires a data frame and a character vector designating the
 # file name. See example below:
-write.csv(practicedata1, file = "GeneExpressionData.csv")
+write.csv(practicedata1, file = "InstructionMaterials/GeneExpressionData.csv")
   
   
