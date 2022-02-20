@@ -9,7 +9,7 @@ output:
 
 ## Setup
 
-In today's session, we will use the `ggplot2` package for plotting.
+In this module, we will use the `ggplot2` package for plotting.
 
 ```{r setup, include = FALSE}
 
@@ -23,45 +23,44 @@ library(ggplot2) # plotting library
 
 ### Loading and printing the data
 
-For this example, we are going to use the GeneExpression data we simulated in Module 1.2 Supplement, and vizualy explored in module 1.3. 
+In this module, we will use to use the GeneExpression data we simulated in Module 1.2 Supplement, and visually explored in module 1.3. 
 
 This data set contains information on gene expression (MeanCounts, representing measurements of protein quantities), gene transcription (MeanCountsTranscipt, representing measurements of mRNA quantities), and protein activity (MeanActivity, representing measurements of protein activity). Transcription levels are classically easier to measure (measured by RNA sequencing) than protein expression or activity levels (often measured by immuno-labelling such as immuno-histochemistry or flow-cytometry).
 
 ```{r dummydataimport}
 
-# using the read.csv() command import the GeneExpressionData.csv file
+# Using the read.csv() command import the GeneExpressionData.csv file
 dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
 
-# notice that the data is in long form.
+# Notice that the data is in long form.
 View(dummydata)
 
 ```
 
 In this module, we aim to assess whether those three variables are correlated or not. If those measures are correlated, then our experimenter could measure only transcription levels to predict expression and activity levels. 
 
-Let's start by focusing on the association between gene expression and trasncription levels.
+Let's start by focusing on the association between gene expression and transcription levels.
 
 ### Visualizing the data
 
 ```{r visualassessment}
 
-# use ggplot to make a histogram to view the distribution of petal.length values
+# Use ggplot to make a histogram to view the distribution of the transcriptions levels
 ggplot(data = dummydata, aes(x = MeanCountsTranscript)) +
   geom_histogram() +
   labs(x = "Transcription level",
        y = "Counts") 
 
-# add a fill color to distinguish between species
+# Add a fill color to distinguish between genes
 ggplot(data = dummydata, aes(x = MeanCountsTranscript, fill = GeneNames)) +
   geom_histogram() +
   labs(x = "Transcription level",
        y = "Counts") +
   scale_fill_discrete(name = "Gene")
 
-# use ggplot to create a scatter plot comparing petal width and petal
+# Use ggplot to create a scatter plot comparing transcriptions and expression levels
 # length for the species
-
-# use scale_color_discreet to edit the name and labels for your legend
+# Use scale_color_discrete to edit the name and labels for your legend
 ggplot(data = dummydata, aes(x = MeanCountsTranscript, y = MeanCounts, color = GeneNames)) +
   geom_point() +
   labs(x = "Transcription level",
@@ -74,9 +73,9 @@ ggplot(data = dummydata, aes(x = MeanCountsTranscript, y = MeanCounts, color = G
 
 ### Pearson's correlation 
 
-The Pearson's correlation is used to measure the strength and direction of association 
-between two variables. The Pearson's correlation coefficient can be obtained using the
-`cor()` function by setting to method to `pearson`.
+Pearson's correlation is used to measure the strength and direction of association 
+between two variables. Pearson's coefficient corresponds to the ratio between the covariance of two variables and the product of their standard deviations. It is essentially a normalized measurement of the covariance, such that the result always has a value between −1 and 1. This measure can only reflect a **linear correlation** of variables.
+Pearson's correlation coefficient can be obtained using the `cor()` function by setting to method to `pearson`. 
 
 ```{r pearson-cor}
 
@@ -101,7 +100,8 @@ cor.test(dummydata$MeanCountsTranscript, dummydata$MeanCounts, # Variables betwe
 
 ### Spearman's rank correlation
 
-The Spearman's rank correlation is a non-parametric equivalent to Pearson's correlation. It is used to measure the strength and direction of association between two ranked variables. The Spearman's rank correlation coefficient can also be obtained using the `cor()` function or the `cor.test()` function by setting to method to `spearman`.
+Spearman's rank correlation is a non-parametric equivalent to Pearson's correlation. It is used to measure the strength and direction of association between two ranked variables. Spearman's correlation assesses **monotonic relationships (whether linear or not)**.
+Spearman's rank correlation coefficient can also be obtained using the `cor()` function or the `cor.test()` function by setting to method to `spearman`.
 
 ```{r spearman}
 
@@ -281,7 +281,6 @@ prmtst$r_real
 print('This analysis suggest that gene expression levels and protein activity levels are correlated. Hence, gene expression level is a good predictor of protein activity.')
 
 ```
-
 
 ### Going further
 
