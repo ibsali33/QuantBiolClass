@@ -5,7 +5,131 @@ output:
  html_document:
  toc: TRUE
  toc_float: TRUE
+editor_options:
+  chunk_output_type: console
 ---
+
+## Setup
+
+In this module, we will use the `ggplot2` package for plotting.
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2) # plotting library
+
+```
+
+## Data exploration
+
+### Loading and printing the data
+
+In this module, we will use to use the GeneExpression data we simulated in Module 1.2 Supplement, and visually explored in module 1.3. 
+
+This data set contains information on gene expression (MeanCounts, representing measurements of protein quantities), gene transcription (MeanCountsTranscipt, representing measurements of mRNA quantities), and protein activity (MeanActivity, representing measurements of protein activity). Transcription levels are classically easier to measure (measured by RNA sequencing) than protein expression or activity levels (often measured by immuno-labelling such as immuno-histochemistry or flow-cytometry).
+
+
+https://tavareshugo.github.io/data-carpentry-rnaseq
+
+```{r dummydataimport}
+
+trans_cts = read.csv("Data/RNAData/counts_transformed.csv")
+
+trans_cts_tidy = read.csv('Data/RNAData/counts_transformed_tidy.csv')
+
+sample_info = read.csv("Data/RNAData/sample_info.csv")
+
+ggplot(data = subset(trans_cts_tidy, gene == unique(trans_cts_tidy$gene)[8]), aes(x = minute, y = cts, color = replicate)) +
+  geom_line() + 
+  geom_point() +
+  facet_grid(strain ~ . )
+
+# Create a matrix from our table of counts
+pca_matrix <- trans_cts %>% 
+  # make the "gene" column become the rownames of the table
+  column_to_rownames("gene") %>% 
+  # coerce to a matrix
+  as.matrix() %>% 
+  # transpose the matrix so that rows = samples and columns = variables
+  t()
+
+pca_matrix[1:10, 1:5]
+
+# Perform the PCA
+pca <- prcomp(pca_matrix)
+
+fviz_eig(pca)
+
+# you can use the fviz packages
+fviz_pca_ind(pca,
+             repel = TRUE     # Avoid text overlapping
+             )
+
+# or get the data and plot it yourself
+pca_scale <- prcomp(pca_matrix, scale = TRUE)
+
+
+# The PC scores are stored in the "x" value of the prcomp object
+pc_scores <- as.data.frame(pca_scale$x)
+pc_scores$sample = rownames(pc_scores)
+pc_scores = pc_scores %>% relocate(sample)
+
+# print the result
+pc_scores
+
+ggplot(data = pc_scores, aes(x = PC1, y = PC2)) +
+  geom_point()
+
+pc_scores_comp = full_join(pc_scores, sample_info, by = "sample")
+
+ggplot(data = pc_scores_comp, aes(x = PC1, y = PC2, color = as.factor(minute), shape = strain)) +
+  geom_point()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################################
 
 Some of the material below is from the book: "Practical Guide to Cluster Analysis in R"
 
@@ -19,7 +143,7 @@ library(umap)
 
 Look at the data
 ```{r}
-data(decathlon2)
+decat = data(decathlon2)
 head(decathlon2)
 ggp=ggpairs(decathlon2)
 print(ggp,progress=FALSE)
@@ -74,7 +198,7 @@ fviz_eig(res.pca)+ ggtitle("Original")
 Plot the first two components
 ```{r}
 # you can use the fviz packages
-fviz_pca_ind(res.pca,
+fviz_pca_ind(sample_pca,
              repel = TRUE     # Avoid text overlapping
              )
 

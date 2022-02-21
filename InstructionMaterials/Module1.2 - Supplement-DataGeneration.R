@@ -155,4 +155,4 @@ for (ii in 1:length(practicedata1$MeanActivityQuali)){
 # Using the 'write.csv()' command create a csv of the data we just created
 # this command requires a data frame and a character vector designating the
 # file name. See example below:
-write.csv(practicedata1, file = "InstructionMaterials/GeneExpressionData.csv")
+write.csv(practicedata1, file = "Data/GeneExpressionData.csv")

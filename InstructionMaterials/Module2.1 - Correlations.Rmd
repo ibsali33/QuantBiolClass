@@ -5,6 +5,8 @@ output:
  html_document:
  toc: TRUE
  toc_float: TRUE
+editor_options:
+  chunk_output_type: console
 ---
 
 ## Setup
@@ -23,14 +25,14 @@ library(ggplot2) # plotting library
 
 ### Loading and printing the data
 
-In this module, we will use to use the GeneExpression data we simulated in Module 1.2 Supplement, and visually explored in module 1.3. 
+In this module, we will use the GeneExpression data we simulated in Module 1.2 Supplement, and visually explored in module 1.3. 
 
 This data set contains information on gene expression (MeanCounts, representing measurements of protein quantities), gene transcription (MeanCountsTranscipt, representing measurements of mRNA quantities), and protein activity (MeanActivity, representing measurements of protein activity). Transcription levels are classically easier to measure (measured by RNA sequencing) than protein expression or activity levels (often measured by immuno-labelling such as immuno-histochemistry or flow-cytometry).
 
 ```{r dummydataimport}
 
 # Using the read.csv() command import the GeneExpressionData.csv file
-dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
+dummydata <- read.csv("Data/GeneExpressionData.csv", header = TRUE, sep = ",")
 
 # View the data
 View(dummydata)
@@ -218,7 +220,6 @@ Repeat the same analysis to assess the association between MeanCounts (expressio
 print('This analysis suggest that gene expression levels and protein activity levels are / are not correlated. Hence, gene expression level is / is not a good predictor of protein activity.')
 
 ```
-
 
 ## Solutions to exercises
 

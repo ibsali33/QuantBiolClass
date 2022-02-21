@@ -76,7 +76,7 @@ characteristics of this data set.
 ```{r dummydataimport}
 
 # using the read.csv() command import the GeneExpressionData.csv file
-dummydata <- read.csv("GeneExpressionData.csv", header = TRUE, sep = ",")
+dummydata <- read.csv("Data/GeneExpressionData.csv", header = TRUE, sep = ",")
 
 # notice that the data is in long form.
 View(dummydata)
