@@ -336,11 +336,11 @@ ggplot(data = pc_loadings) +
 
 ```
 
-## Note about PCA and p-values
+### Note about PCA and p-values
 
 PCA are exploratory analyses. They do not allow us to test any null hypothesis. We should thus not expect a p-value from a PCA. However, PCA components can be used in linear models as any other quantitative variable.
 
-## Exercise 1
+### Exercise 1
 
 Using the Decathlon data set (built in in R), explore how performances in different sports correlates together.
 
@@ -382,6 +382,8 @@ print('Individuals good at *** seem to also good at ***').
 ```
 
 ## Solutions to exercises
+
+### Exercise 1
 
 ```{r exercise1solution}
 
