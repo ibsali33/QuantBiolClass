@@ -1,32 +1,39 @@
 ---
 title: "Assignment 1 - linear models"
+author: "Your name"
 output:
   html_document:
     toc: TRUE
     Toc_float: TRUE
 ---
 
-## Collect data.  
+## Define research questions and collect data  
 
-Collect data about US states: 
+Have a look at the data available on https://worldpopulationreview.com/states 
 
-https://worldpopulationreview.com/states 
-scroll down to their "State Listing Articles" click on articles of interest, many of them will have links to csv files you can download. For example: 
-blob:https://worldpopulationreview.com/37b7dc59-9bc3-48f0-a4a3-8a2e2b000d6a
+Scroll down to their "**State Listing Articles**" click on articles of interest. Many of them will have links to csv files you can download. 
 
-You need to collect data on at least 10 different attributes. Some could be continuous and some categorical (midwest). 
+Decide **what you want to study**, i.e. chose one (or a few) dependent variables and other that are independent. 
 
+You need to collect a few data sets, in order to reach about 10 different attributes (which would corresponds to 10 column in the final data set). Some could be continuous and some categorical. 
 
-## Define research questions. 
-Decide what you want to study, i.e. chose one (or a few) dependent variables and other that are independent. 
+## Explore and analyse the data, and interpret the results
 
-Build linear models, generate plots and make condifent statement. 
+Build linear models, generate plots and make confidence statement. 
 
-### Submissson. 
-Please submit an html/pdf (i.e. preview or knitt your notebook). The code should be annotated with proper markup and comments in the text. Show figures for all key steps as needed. 
+## Submission
+
+You can work on RStudio Cloud, or on the desktop version of RStudio.
+
+Please submit an **html/pdf** (i.e. preview or knitt your notebook). The code should be **annotated** with proper markup and comments in the text. Show figures for all key steps as needed. 
+
+###
 
 Load packages needed for analysis
+Note - If you are not sure which package you need now, you can come back to this section later to update it as needed.
+
 ```{r packages}
+
 ## load the packages necessary for your analysis
 
 
@@ -34,32 +41,41 @@ Load packages needed for analysis
 ```
 
 Read data
+Note - If you are working on RStudioCloud, you can put all the csv files in a zip folder, and upload this zip from the 'Files' windows of the RStudio interface.
+
 ```{r dataimport}
-## import the data for your analysis
+
+## Import the data for your analysis
 
 
 ```
 
-Include any data cleaning steps
+Data cleaning and merging 
+
 ```{r datacleaning}
 
 
 ```
 
 Exploratory figures 
+
 ```{r dataviz1}
 
+
+
 ```
 
-Define research questions. 
-* This is questions 1
-* justrified by reason 2. 
+Define research questions and hypothesis
+* Question/hypothesis: 
+* Justification: 
 
-What statistics do you need to do to
-check assumptsions etc. 
+What statistics do you need to get to
+Do not forget to check that model assumptions are verified
+
 ```{r stat_testing}
 
+
+
 ```
 
-
-
+How do you interpret the results?
