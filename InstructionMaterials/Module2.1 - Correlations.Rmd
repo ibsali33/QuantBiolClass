@@ -231,7 +231,7 @@ print('This analysis suggest that gene expression levels and protein activity le
 # Make sure the axis names and legend are explicit
 ggplot(data = dummydata, aes(x = MeanActivity, fill = GeneNames)) +
   geom_histogram() +
-  labs(x = "Transcription level",
+  labs(x = "Activity level",
        y = "Counts") +
   scale_fill_discrete(name = "Gene")
 
@@ -239,7 +239,7 @@ ggplot(data = dummydata, aes(x = MeanActivity, fill = GeneNames)) +
 # Make sure the axis names and legend are explicit
 ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity, color = GeneNames)) +
   geom_point() +
-  labs(x = "Transcription level",
+  labs(x = "Activity level",
        y = "Expression level") +
   scale_color_discrete(name = "Gene")
 

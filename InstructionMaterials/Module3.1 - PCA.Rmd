@@ -9,65 +9,135 @@ editor_options:
   chunk_output_type: console
 ---
 
+## Introduction to multidimensional data
+
+**Multidimensional data** usually refers to data that we want to explore in a space with more than 2 dimensions. For instance, let's imagine a data set containing information about object positions in a 3D space (including longitude `x`, latitude `y`, and altitude `z`). If we are looking at the position of the objects in space, we would think in a 'multidimensional space'. This approach can for instance allow us to explore whether the objects are clustered in groups (e.g., those in the table, those in the shelve...). This information would be lost if we were looking only at the distance of each object from an origin (e.g., the door of the room), so we do not want to only look at the multivariate equation `d = (x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup>)<sup>1/2</sup>`.  
+
 ## Setup
 
-In this module, we will use the `ggplot2` package for plotting.
+In this module, we will use the `tidyverse` for data formatting, the `ggplot2` package for plotting, and the `factoextra` package for principal component analysis exploration and visualization.
 
 ```{r setup, include = FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
 
-library(tidyverse) 
+library(tidyverse) # data formatting 
 library(ggplot2) # plotting library
-library(factoextra)
+library(factoextra) # principal component analysis exploration and visualization 
 
 ```
 
-```{r}
+## Reminder with a '2D exploration'
 
-library(palmerpenguins)
+So far, we have learned how explore associations between 2 variables, potentially structured across conditions. In other words, we were working in a 2D space. In this module, we will see how to handle multidimensional data. Let's quickly go back to GeneExpressionData, and how we explored the relationship between gene transcription and expression levels.
 
-penguins = penguins
-penguins = subset(penguins, !is.na(sex))
+```{r simple-example}
 
-ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point()
+# Load data
+dummydata = read.csv("Data/GeneExpressionData.csv", header = TRUE, sep = ",")
 
-ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = island, shape = sex)) +
-  geom_point()
+# Preview the data
+head(dummydata)
+
+# Exploration of the relationship between gene transcription and expression levels
+
+# Plot
+ggplot(data = dummydata, aes(x = MeanCountsTranscript, y = MeanCounts, color = GeneNames)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  labs(x = "Transcription level",
+       y = "Expression level") +
+  scale_color_discrete(name = "Gene")
+
+# Pro tip - If you have not kept track of your indentation, you can use the shortcut 
+# ctrl + shift + a (on Windows)
+# cmd + shift + a (on Mac)
+
+# Univariate regression
+lm = lm(formula = MeanCounts~ MeanCountsTranscript, data = dummydata)
+
+# Multivariate regression
+lm_gene = lm(formula = MeanCounts~ MeanCountsTranscript + GeneNames, data = dummydata)
+
+# Look at the estimates for the model parameters, as well as the p-values
+summary(lm)
+summary(lm_gene)
+
+# Plot the residuals to (visually) check that the assumptions are verified
+plot(resid(lm))
+plot(resid(lm_gene))
+
+# Compared the models with and without a gene effect
+AIC(lm, lm_gene)
+
+# Clean the environment
+rm(list = c("dummydata", "lm", "lm_gene"))
 
 ```
 
 
-## Data exploration
+## Multidimensional data
 
 ### Loading and printing the data
 
-In this module, we will use to use the GeneExpression data we simulated in Module 1.2 Supplement, and visually explored in module 1.3. 
+For this part of the module, we will use the data set presented by H. Tavares and G. Zeller in there [Exploratory analysis of transcriptomics data in R](https://tavareshugo.github.io/data-carpentry-rnaseq) workshop, extracted from the following publication: 
+Leong H.S., Dawson K., Wirth C., Li Y., Connolly Y., Smith D.L., Wilkinson C.R., Miller C.J. 2014 A global non-coding RNA system modulates fission yeast protein levels in response to stress. *Nature Communication* 5:3947 ([doi.org/10.1038/ncomms4947](https://doi.org/10.1038/ncomms4947)).
 
-This data set contains information on gene expression (MeanCounts, representing measurements of protein quantities), gene transcription (MeanCountsTranscipt, representing measurements of mRNA quantities), and protein activity (MeanActivity, representing measurements of protein activity). Transcription levels are classically easier to measure (measured by RNA sequencing) than protein expression or activity levels (often measured by immuno-labelling such as immuno-histochemistry or flow-cytometry).
+This data set includes a *subset* of transcriptome data for:
+- Two yeast strains: wild type (“wt”) and atf21del mutant (“mut”),
+- Each has 6 time points of osmotic stress time (0, 15, 30, 60, 120 and 180 minutes)
+- Three replicates for each strain at each time point.
 
+```{r dataimport}
 
-https://tavareshugo.github.io/data-carpentry-rnaseq
+# Import the data
+trans_cts = read.csv("Data/RNAData/counts_transformed_subset.csv") # transcriptomics
+sample_info = read.csv("Data/RNAData/sample_info.csv") # metadata
 
-```{r dummydataimport}
-trans_cts = read.csv("Data/RNAData/counts_transformed_subset.csv")
-sample_info = read.csv("Data/RNAData/sample_info.csv")
+# Have a look at the data
+head(trans_cts)
+head(sample_info)
 
-trans_cts_long <- trans_cts %>% 
+# Those data were downloaded from the repository
+# https://github.com/tavareshugo/data-carpentry-rnaseq
+# For the data downloading and formatting script, see
+# Module3.1 - Supplement-DataUpload.R
+
+```
+
+```{r data-formatting}
+
+# Re-arrange the dataset in a long 'tidy' data set
+trans_cts_long = trans_cts %>% 
   pivot_longer(cols = wt_0_r1:mut_180_r3, 
                names_to = "sample", 
                values_to = "cts")
 
-trans_cts_long <- full_join(trans_cts_long, sample_info, by = "sample")
+head(trans_cts_long)
 
+# Add metadata to the transcriptomics data set
+trans_cts_long = full_join(trans_cts_long, sample_info, by = "sample")
+
+# Have a look at what the data look like
+# We can change the gene to be plotted 
 ggplot(data = subset(trans_cts_long, gene == unique(trans_cts_long$gene)[1]), aes(x = minute, y = cts, color = replicate)) +
   geom_line() + 
   geom_point() +
   facet_grid(strain ~ . )
 
+```
+
+We wonder how yeast lineage impacts gene transcription. We have too many genes to explore this effect gene by gene (the filtered data set includes 36 genes, but the original data set includes more than 6000 genes). One way to address this question is to look, not at the effect of lineage on gene transcription one by one, but how the transcriptomics profile (including all the genes) is (or is not) clustered across lineages in the 'gene space'. 
+
+### Principal component analysis (PCA)
+
+**Principal component analysis** are useful tools to explore multidimensional data. Let's see what it looks like. In R, we do this with the `prcomp()` function.
+
+```{r PCA}
+
+# First we need a matrix with labeled column and row names
 # Create a matrix from our table of counts
-pca_matrix <- trans_cts %>% 
+pca_matrix = trans_cts %>% 
   # make the "gene" column become the rownames of the table
   column_to_rownames("gene") %>% 
   # coerce to a matrix
@@ -75,66 +145,184 @@ pca_matrix <- trans_cts %>%
   # transpose the matrix so that rows = samples and columns = variables
   t()
 
+# Have a look at the data
 pca_matrix[1:10, 1:5]
+# We could also have used head()
 
-# Perform the PCA
-pca <- prcomp(pca_matrix)
+# Run the PCA
+pca = prcomp(pca_matrix)
 
+```
+
+#### PCA visualization
+
+A **scree plot** shows the relative contribution of different *factors* (the input variables we are looking at, here genes) to the *observed variance* in the data set. 
+
+The **individual plot** shows the position of each (individual) data point on an *artificial 2D space* defined by artificial axes, or **components**, constructed through the PCA process to capture as much as possible of the variance. Those axes or components are constructs of the input variables (in other words, a 'mixture' of the different variables), based on linear combinations of the input variables. 
+
+The **variable plot** shows the contribution of each input variable to the **components**, constructed through the PCA process.
+
+```{r PCA-visualization}
+
+# Instead of writing lots of lines of code to extract and plot relevant information
+# We can use the functions of the factoextra package for PCA exploration and visualization 
+
+# Scree plot
 fviz_eig(pca)
-```
 
-
-```{r}
-set.seed(101)
-mat <- matrix(rnorm(nrow(decathlon2.active)*10), 10, 500)
-## Warning in matrix(rnorm(nrow(decathlon2.active) * 10), 10, 500): data length
-## [270] is not a sub-multiple or multiple of the number of columns [500]
-# Perform PCA
-myPCA <- prcomp(mat, scale = TRUE)
-
-fviz_eig(myPCA)
-```
-
-
-```{r }
-# you can use the fviz packages
+# Individual plot
 fviz_pca_ind(pca,
-             repel = TRUE     # Avoid text overlapping
+             repel = TRUE # Avoid text overlapping
              )
 
-# or get the data and plot it yourself
-pca_scale <- prcomp(pca_matrix, scale = TRUE)
+# Variable plot
+fviz_pca_var(pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE 
+             )
+# We can see that the first component is a 'mixture' of genes SPA32A11.02c, SPCC1A11.15c, etc...
 
+```
+
+##### Extra activity: compare to random data
+
+```{r random-data}
+
+# Set random number generator seed
+set.seed(1)
+
+# Generate a matrix of random data
+mat = matrix(rnorm(50*40), 
+              50, # Individual (experimental conditions)
+              40 # Input variables (genes)
+              )
+
+# Run the PCA
+myPCA = prcomp(mat)
+
+# Scree plot
+fviz_eig(myPCA)
+# Contribution to variance is well distributed across input variables
+
+# Individual plot
+fviz_pca_ind(myPCA,
+             repel = TRUE 
+             )
+# Uniform cloud
+
+# Variable plot
+fviz_pca_var(myPCA,
+             col.var = "contrib", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE 
+             )
+# Contribution to variance is well distributed across input variables
+
+```
+
+#### Scaling 
+
+**Scaling** is a process through which data are **standardized** by taking the z-score of each data point (representing its position in the group). The z-score is calculated as the difference between the point and the mean of the group, divided by the variance within the group.
+
+Scaling is particularly important when working on data of different magnitude, which often occurs when working on data with different units.
+
+```{r scaling}
+
+# Run the scaling and the PCA
+pca_scale = prcomp(pca_matrix, scale = TRUE)
+
+# Scree plot
+fviz_eig(pca_scale)
+
+# Individual plot
+fviz_pca_ind(pca_scale,
+             repel = TRUE 
+             )
+
+# Variable plot
+fviz_pca_var(pca_scale,
+             col.var = "contrib", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE 
+             )
+
+# Combine both: biplots
+fviz_pca_biplot(pca_scale, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969" # Individuals color
+                )
+# This allows us to see that the conditions on the bottom-right
+# are characterized high levels of the SPAC823.03 (right) and 
+# SPBC2G5.02c (bottom) genes
+
+```
+
+### Extracting key PCA outpouts 
+
+In many cases, we want to be able to reproduce the PCA figures with ggplot, which is much more flexible regarding visualization options, allowing us to create nice, publishable figures. For this, we need to extract the new data (the PCA outputs) from the PCA object.
+
+#### PC scores and individual plots
+
+Individual plots represent data point positions on the component axes. We call this information **PC scores**.
+
+```{r PC-scores}
+
+# Individual plot
+fviz_pca_ind(pca_scale,
+             repel = TRUE # Avoid text overlapping
+             )
+# Let's reproduce this plot
 
 # The PC scores are stored in the "x" value of the prcomp object
-pc_scores <- as.data.frame(pca_scale$x)
-pc_scores$sample = rownames(pc_scores)
+# Extract the data
+pc_scores = as.data.frame(pca_scale$x) 
+# Create a column with the data point identify (here experimental conditions)
+# This information is already stored in the row names of the PC score matrix
+pc_scores$sample = rownames(pc_scores) 
+# Additional detail: move that new column to the first positions
 pc_scores = pc_scores %>% relocate(sample)
 
-# print the result
+# Print the result
 pc_scores
 
+# Recreate the individual plot with ggplot
 ggplot(data = pc_scores, aes(x = PC1, y = PC2)) +
   geom_point()
 
+```
+
+Remember that our objective was to explore how yeast lineage impacts gene transcription.
+
+```{r PC-scores-metadata}
+
+# Merge the PC score data frame with the sample metadata to explore grouping factors
 pc_scores_comp = full_join(pc_scores, sample_info, by = "sample")
 
+# Add color by time, and shape by lineage
 ggplot(data = pc_scores_comp, aes(x = PC1, y = PC2, color = as.factor(minute), shape = strain)) +
   geom_point()
 
-# Contributions of variables to PC1
-fviz_contrib(pca_scale, choice = "var", axes = 1, top = 10)
-# Contributions of variables to PC2
-fviz_contrib(pca_scale, choice = "var", axes = 2, top = 10)
+# What is our conclusion? Which factor does impact transcriptomics profile the most? Yest lineage or time?
 
+```
+
+#### PC contributions and variable plots
+
+Variable plots represent the contribution of each variable input to the components. We call this information **PC loadings**: the coefficients of the linear combination of the original variables.
+
+```{r PC-contrib}
+
+# Variable plot
 fviz_pca_var(pca_scale,
-             col.var = "contrib", # Color by contributions to the PC
+             col.var = "contrib", 
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE     # Avoid text overlapping
+             repel = TRUE 
              )
+# Let's reproduce this plot
 
-
-pc_loadings <- as.data.frame(pca_scale$rotation)
+# The PC loadings are stored in the "rotation" value of the prcomp object
+pc_loadings = as.data.frame(pca_scale$rotation)
 pc_loadings$gene = rownames(pc_loadings)
 pc_loadings = pc_loadings %>% relocate(gene)
 
@@ -146,48 +334,90 @@ ggplot(data = pc_loadings) +
             nudge_y = 0.005, size = 3) +
   scale_x_continuous(expand = c(0.02, 0.02))
 
-fviz_pca_biplot(pca_scale, repel = TRUE,
-                col.var = "#2E9FDF", # Variables color
-                col.ind = "#696969"  # Individuals color
-                )
 ```
 
-### Exercise 1
+## Note about PCA and p-values
 
-Decathlon data
+PCA are exploratory analyses. They do not allow us to test any null hypothesis. We should thus not expect a p-value from a PCA. However, PCA components can be used in linear models as any other quantitative variable.
 
-```{r}
+## Exercise 1
 
+Using the Decathlon data set (built in in R), explore how performances in different sports correlates together.
+
+```{r exercise1}
+
+# Clean the environment
+rm(list = ls())
+
+# Load the data
 data(decathlon2)
+
+# Have a look at the data
+
+
+
+# Keep only the numeric values
+decathlon2.active = decathlon2[, 1:10]
+
+# Run the PCA
+# Think about whether you want is scaled, or not
+
+
+
+# Scree plot
+
+
+
+# Individual plot
+
+
+
+# Variable plot
+
+
+
+# What is your conclusion?
+print('Individuals good at *** seem to also good at ***').
+
+```
+
+## Solutions to exercises
+
+```{r exercise1solution}
+
+# Clean the environment
+rm(list = ls())
+
+# Load the data
+data(decathlon2)
+
+# Have a look at the data
 head(decathlon2)
 
-decathlon2.active <- decathlon2[, 1:10]
-res.pca <- prcomp(decathlon2.active, scale = TRUE)
+# Keep only the numeric values
+decathlon2.active = decathlon2[, 1:10]
+
+# Run the PCA
+# Think about whether you want is scaled, or not
+res.pca = prcomp(decathlon2.active, scale = TRUE)
+
+# Scree plot
 fviz_eig(res.pca)
 
-# you can use the fviz packages
+# Individual plot
 fviz_pca_ind(res.pca,
-             repel = TRUE     # Avoid text overlapping
+             repel = TRUE # Avoid text overlapping
              )
 
-# or get the data and plot it yourself
-res.pca <- prcomp(decathlon2.active, scale = TRUE)
-new_PC_representation = res.pca$x
-qplot(new_PC_representation[,1],new_PC_representation[,2],xlab = "PC-1",ylab="PC2")
-
-# Contributions of variables to PC1
-fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
-
-# Contributions of variables to PC2
-fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
-
+# Variable plot
 fviz_pca_var(res.pca,
              col.var = "contrib", # Color by contributions to the PC
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE     # Avoid text overlapping
+             repel = TRUE 
              )
 
+# What is your conclusion?
+print('Individuals good at 100m seem to also good at 110m hurdle').
 
 ```
-
 

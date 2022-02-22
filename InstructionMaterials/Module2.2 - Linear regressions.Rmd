@@ -52,15 +52,15 @@ Let's start by focusing on the association between gene expression levels and pr
 ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(x = "Transcription level",
-       y = "Expression level") 
+  labs(x = "Expression level",
+       y = "Activity level") 
 
 # Use scale_color_discrete to edit the name and labels for your legend
 ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity)) +
   geom_point(aes(color = GeneNames)) +
   geom_smooth(method = "lm") +
-  labs(x = "Transcription level",
-       y = "Expression level") +
+  labs(x = "Expression level",
+       y = "Activity level")  +
   scale_color_discrete(name = "Gene")
 
 ```
@@ -76,7 +76,7 @@ When we fit the model `Y = a + b X`, the `lm()` returns an estimate (with a conf
 ```{r lm}
 
 # lm() function to fit the linear model to the data
-lm = lm(formula = MeanCounts ~ MeanCountsTranscript, data = dummydata)
+lm = lm(formula = MeanActivity ~ MeanCounts, data = dummydata)
 
 # Use summary to obtain the estimates for the parameters a and b, as well as the p-value
 summary(lm)
@@ -90,9 +90,13 @@ plot(resid(lm))
 
 #### Exercise 1 
 
-We now want to assess whether gene expression level is a good predictor of protein activity level. Repeat the same analysis to assess the association between MeanCounts (expression level) and MeanActivity (activity level). How do you interpret the results?
+We now want to assess whether gene transcription level is a good predictor of gene expression level. Repeat the same analysis to assess the association between MeanCounts (expression level) and MeanCountsTranscript (transcription level). How do you interpret the results?
 
 ```{r exercise1}
+
+# Plot the data
+
+
 
 # Linear regression
 
@@ -114,20 +118,30 @@ Another benefit of linear regressions is that you can easily expand them to mult
 
 ```{r lm}
 
-# Add a gene effect
-lm_time = lm(formula = MeanCounts ~ MeanCountsTranscript + TimePoint, data = dummydata)
+# Plot the data
+ggplot(data = dummydata, aes(x = MeanCounts, y = MeanActivity, color = GeneNames)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  labs(x = "Expression level",
+       y = "Activity level")  +
+  scale_color_discrete(name = "Gene")
 
-# Use summary to obtain the estimates for the parameters a and b, as well as the p-value
-summary(lm_time)
+# Add a gene effect
+lm_gene = lm(formula = MeanActivity ~ MeanCounts + GeneNames, data = dummydata)
+
+# Look at the estimates for the model parameters, as well as the p-values
+summary(lm_gene)
 
 # Plot the residuals to (visually) check that the assumptions are verified
-plot(resid(lm_time))
+plot(resid(lm_gene))
 
-# Compared the models with and without a time effect
+# Compared the models with and without a gene effect
 # with the Akaike Information Criterion
-AIC(lm, lm_time)
-# The model without a time effect has a lower AIC, suggesting that
-# adding the time effect does not improve the fit of the model
+AIC(lm, lm_gene)
+# The model without a gene effect has a lower AIC, suggesting that
+# adding the gene effect does not improve the fit of the model
+
+# The stepAIC() function from the MASS package allows you to automatize this process
 
 ```
 
@@ -137,8 +151,16 @@ AIC(lm, lm_time)
 
 ```{r exercise1solution}
 
+# Plot the data
+ggplot(data = dummydata, aes(x = MeanCountsTranscript, y = MeanCounts, color = GeneNames)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  labs(x = "Transcription level",
+       y = "Expression level")  +
+  scale_color_discrete(name = "Gene")
+
 # Linear regression
-lm = lm(formula = MeanCounts ~ MeanActivity, data = dummydata)
+lm = lm(formula = MeanCountsTranscript ~ MeanCounts, data = dummydata)
 
 # Print summary
 summary(lm)
