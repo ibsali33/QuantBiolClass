@@ -23,6 +23,22 @@ library(factoextra)
 
 ```
 
+```{r}
+
+library(palmerpenguins)
+
+penguins = penguins
+penguins = subset(penguins, !is.na(sex))
+
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point()
+
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = island, shape = sex)) +
+  geom_point()
+
+```
+
+
 ## Data exploration
 
 ### Loading and printing the data
