@@ -35,15 +35,7 @@ This data set contains information on gene expression (MeanCounts, representing 
 https://tavareshugo.github.io/data-carpentry-rnaseq
 
 ```{r dummydataimport}
-
-for(i in c("counts_raw.csv", "counts_transformed.csv", "sample_info.csv", "test_result.csv")){
-  download.file(
-    url = paste0("https://github.com/tavareshugo/data-carpentry-rnaseq/blob/master/data/", i, "?raw=true"),
-    destfile = paste0("Data/RNAData/", i)
-  )
-}
-
-trans_cts = read.csv("Data/RNAData/counts_transformed.csv")
+trans_cts = read.csv("Data/RNAData/counts_transformed_subset.csv")
 sample_info = read.csv("Data/RNAData/sample_info.csv")
 
 trans_cts_long <- trans_cts %>% 
@@ -53,7 +45,7 @@ trans_cts_long <- trans_cts %>%
 
 trans_cts_long <- full_join(trans_cts_long, sample_info, by = "sample")
 
-ggplot(data = subset(trans_cts_long, gene == unique(trans_cts_long$gene)[8]), aes(x = minute, y = cts, color = replicate)) +
+ggplot(data = subset(trans_cts_long, gene == unique(trans_cts_long$gene)[1]), aes(x = minute, y = cts, color = replicate)) +
   geom_line() + 
   geom_point() +
   facet_grid(strain ~ . )
@@ -73,7 +65,22 @@ pca_matrix[1:10, 1:5]
 pca <- prcomp(pca_matrix)
 
 fviz_eig(pca)
+```
 
+
+```{r}
+set.seed(101)
+mat <- matrix(rnorm(nrow(decathlon2.active)*10), 10, 500)
+## Warning in matrix(rnorm(nrow(decathlon2.active) * 10), 10, 500): data length
+## [270] is not a sub-multiple or multiple of the number of columns [500]
+# Perform PCA
+myPCA <- prcomp(mat, scale = TRUE)
+
+fviz_eig(myPCA)
+```
+
+
+```{r }
 # you can use the fviz packages
 fviz_pca_ind(pca,
              repel = TRUE     # Avoid text overlapping
@@ -99,11 +106,6 @@ pc_scores_comp = full_join(pc_scores, sample_info, by = "sample")
 ggplot(data = pc_scores_comp, aes(x = PC1, y = PC2, color = as.factor(minute), shape = strain)) +
   geom_point()
 
-```
-
-
-
-```{r}
 # Contributions of variables to PC1
 fviz_contrib(pca_scale, choice = "var", axes = 1, top = 10)
 # Contributions of variables to PC2
@@ -114,166 +116,41 @@ fviz_pca_var(pca_scale,
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
              repel = TRUE     # Avoid text overlapping
              )
-```
-All on the same plot... 
-```{r}
+
+
+pc_loadings <- as.data.frame(pca_scale$rotation)
+pc_loadings$gene = rownames(pc_loadings)
+pc_loadings = pc_loadings %>% relocate(gene)
+
+ggplot(data = pc_loadings) +
+  geom_segment(aes(x = 0, y = 0, xend = PC1, yend = PC2), 
+               arrow = arrow(length = unit(0.1, "in")),
+               color = "brown") +
+  geom_text(aes(x = PC1, y = PC2, label = gene),
+            nudge_y = 0.005, size = 3) +
+  scale_x_continuous(expand = c(0.02, 0.02))
+
 fviz_pca_biplot(pca_scale, repel = TRUE,
                 col.var = "#2E9FDF", # Variables color
                 col.ind = "#696969"  # Individuals color
                 )
 ```
 
-Look at "marker gene" - how does some external grouping variable maps to the low dim representation? 
-```{r}
-groups <- as.factor(decathlon2$Competition)
-fviz_pca_ind(res.pca,
-             col.ind = groups, # color by groups
-             palette = c("#00AFBB",  "#FC4E07"),
-             legend.title = "Groups",
-             repel = TRUE
-             )
-```
+### Exercise 1
 
-MDS - working directly from distance matrix!
-```{r}
-dist.au <- read.csv("http://rosetta.reltech.org/TC/v15/Mapping/data/dist-Aus.csv")
-row.names(dist.au) <- dist.au[, 1]
-dist.au <- dist.au[, -1]
-dist.au
-```
+Decathlon data
 
 ```{r}
-fit <- cmdscale(dist.au, eig = TRUE, k = 2)
-x <- fit$points[, 1]
-y <- fit$points[, 2]
 
-plot(x, y, pch = 19, xlim = range(x) + c(0, 600))
-city.names <- c("Adelaide", "Alice Springs", "Brisbane", "Darwin", "Hobart", 
-    "Melbourne", "Perth", "Sydney")
-text(x, y, pos = 4, labels = city.names)
-
-```
-UMap
-```{r}
-library(palmerpenguins)
-penguins = na.omit(penguins)
-penguin.data = penguins[, grep("bill|flipper", colnames(penguins))]
-penguin.labels = penguins$species
-
-
-penguin.umap = umap(penguin.data)
-penguin.umap
-head(penguin.umap$layout, 3)
-qplot(penguin.umap$layout[,1],penguin.umap$layout[,2],aes(color=factor(penguin.labels)))
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##############################################################################################
-
-Some of the material below is from the book: "Practical Guide to Cluster Analysis in R"
-
-Install package if needed and load 
-```{r}
-library(factoextra)
-library(ggplot2)
-library(GGally)
-library(umap)
-```
-
-Look at the data
-```{r}
-decat = data(decathlon2)
+data(decathlon2)
 head(decathlon2)
-ggp=ggpairs(decathlon2)
-print(ggp,progress=FALSE)
-```
 
-Make a new dataframe that only has the stuff we care about and do PCA
-```{r}
 decathlon2.active <- decathlon2[, 1:10]
 res.pca <- prcomp(decathlon2.active, scale = TRUE)
 fviz_eig(res.pca)
 
-```
-
-Compare to random data (you don't have to do this everytime, this is just educational and I wanted to show you how it looks...)
-```{r}
-set.seed(101)
-mat <- matrix(rnorm(nrow(decathlon2.active)*10), 10, 500)
-
-# Perform PCA
-myPCA <- prcomp(mat, scale = TRUE)
-
-fviz_eig(myPCA)
-
-```
-
-Also be aware of scaling! 
-```{r}
-set.seed(101)
-mat <- matrix(rnorm(nrow(decathlon2.active)*10), 10, 50)
-mat <- scale(mat)
-mat[,1]=mat[,1]*10
-# Perform PCA
-myPCA <- prcomp(mat, scale = FALSE, center = TRUE)
-
-fviz_eig(myPCA)
-
-```
-
-A nice sanity check - permutations (this you could do each time...)! 
-```{r}
-decathlon2.perm <- decathlon2[, 1:10]
-for (i in 1:ncol(decathlon2.perm)) {
-  decathlon2.perm[,i]=sample(decathlon2.perm[,i])
-}
-res.pca.perm <- prcomp(decathlon2.perm, scale = TRUE)
-fviz_eig(res.pca.perm) + ggtitle("permutated")
-
-fviz_eig(res.pca)+ ggtitle("Original")
-
-```
-
-Plot the first two components
-```{r}
 # you can use the fviz packages
-fviz_pca_ind(sample_pca,
+fviz_pca_ind(res.pca,
              repel = TRUE     # Avoid text overlapping
              )
 
@@ -282,11 +159,9 @@ res.pca <- prcomp(decathlon2.active, scale = TRUE)
 new_PC_representation = res.pca$x
 qplot(new_PC_representation[,1],new_PC_representation[,2],xlab = "PC-1",ylab="PC2")
 
-```
-AnalyZe the original variables and how they map into PC1 and PC2
-```{r}
 # Contributions of variables to PC1
 fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+
 # Contributions of variables to PC2
 fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
 
@@ -295,60 +170,8 @@ fviz_pca_var(res.pca,
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
              repel = TRUE     # Avoid text overlapping
              )
-```
-All on the same plot... 
-```{r}
-fviz_pca_biplot(res.pca, repel = TRUE,
-                col.var = "#2E9FDF", # Variables color
-                col.ind = "#696969"  # Individuals color
-                )
-```
 
-Look at "marker gene" - how does some external grouping variable maps to the low dim representation? 
-```{r}
-groups <- as.factor(decathlon2$Competition)
-fviz_pca_ind(res.pca,
-             col.ind = groups, # color by groups
-             palette = c("#00AFBB",  "#FC4E07"),
-             legend.title = "Groups",
-             repel = TRUE
-             )
-```
-
-MDS - working directly from distance matrix!
-```{r}
-dist.au <- read.csv("http://rosetta.reltech.org/TC/v15/Mapping/data/dist-Aus.csv")
-row.names(dist.au) <- dist.au[, 1]
-dist.au <- dist.au[, -1]
-dist.au
-```
-
-```{r}
-fit <- cmdscale(dist.au, eig = TRUE, k = 2)
-x <- fit$points[, 1]
-y <- fit$points[, 2]
-
-plot(x, y, pch = 19, xlim = range(x) + c(0, 600))
-city.names <- c("Adelaide", "Alice Springs", "Brisbane", "Darwin", "Hobart", 
-    "Melbourne", "Perth", "Sydney")
-text(x, y, pos = 4, labels = city.names)
 
 ```
-UMap
-```{r}
-library(palmerpenguins)
-penguins = na.omit(penguins)
-penguin.data = penguins[, grep("bill|flipper", colnames(penguins))]
-penguin.labels = penguins$species
-
-
-penguin.umap = umap(penguin.data)
-penguin.umap
-head(penguin.umap$layout, 3)
-qplot(penguin.umap$layout[,1],penguin.umap$layout[,2],aes(color=factor(penguin.labels)))
-```
-
-
-
 
 
