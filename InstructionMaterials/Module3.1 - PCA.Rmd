@@ -15,7 +15,7 @@ editor_options:
 
 ## Setup
 
-In this module, we will use the `tidyverse` for data formatting, the `ggplot2` package for plotting, and the `factoextra` package for principal component analysis exploration and visualization.
+In this module, we will use the `tidyverse` for data formatting, the `ggplot2` package for plotting, and the `factoextra` package for multidimensional data exploration and visualization.
 
 ```{r setup, include = FALSE}
 
@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse) # data formatting 
 library(ggplot2) # plotting library
-library(factoextra) # principal component analysis exploration and visualization 
+library(factoextra) # multidimensional data exploration and visualization 
 
 ```
 
@@ -83,7 +83,7 @@ rm(list = c("dummydata", "lm", "lm_gene"))
 For this part of the module, we will use the data set presented by H. Tavares and G. Zeller in there [Exploratory analysis of transcriptomics data in R](https://tavareshugo.github.io/data-carpentry-rnaseq) workshop, extracted from the following publication: 
 Leong H.S., Dawson K., Wirth C., Li Y., Connolly Y., Smith D.L., Wilkinson C.R., Miller C.J. 2014 A global non-coding RNA system modulates fission yeast protein levels in response to stress. *Nature Communication* 5:3947 ([doi.org/10.1038/ncomms4947](https://doi.org/10.1038/ncomms4947)).
 
-This data set includes a *subset* of transcriptome data for:
+This data set includes a *subset* of transcriptomics data for:
 - Two yeast strains: wild type (“wt”) and atf21del mutant (“mut”),
 - Each has 6 time points of osmotic stress time (0, 15, 30, 60, 120 and 180 minutes)
 - Three replicates for each strain at each time point.
@@ -127,11 +127,11 @@ ggplot(data = subset(trans_cts_long, gene == unique(trans_cts_long$gene)[1]), ae
 
 ```
 
-We wonder how yeast lineage impacts gene transcription. We have too many genes to explore this effect gene by gene (the filtered data set includes 36 genes, but the original data set includes more than 6000 genes). One way to address this question is to look, not at the effect of lineage on gene transcription one by one, but how the transcriptomics profile (including all the genes) is (or is not) clustered across lineages in the 'gene space'. 
+We wonder how yeast lineage and time impact gene transcription. We have too many genes to explore this effect gene by gene (the filtered data set includes 36 genes, but the original data set includes more than 6000 genes). One way to address this question is to look, not at the effect of lineage on gene transcription one by one, but how the transcriptomics profile (including all the genes) is (or is not) clustered across lineages in the 'gene space'. 
 
 ### Principal component analysis (PCA)
 
-**Principal component analysis** are useful tools to explore multidimensional data. Let's see what it looks like. In R, we do this with the `prcomp()` function.
+**Principal component analyses** are useful tools to explore multidimensional data. Let's see what it looks like. In R, we do this with the `prcomp()` function.
 
 ```{r PCA}
 

@@ -5,138 +5,465 @@ output:
  html_document:
  toc: TRUE
  toc_float: TRUE
+editor_options:
+ chunk_output_type: console
 ---
 
+## Setup
 
-# mateiral from http://www.sthda.com/english/wiki/print.php?id=234
+In this module, we will use the `tidyverse` for data formatting, the `ggplot2` package for plotting, the `factoextra` package for multidimensional data exploration and visualization, and `pheatmap` for heatmap plotting.
 
-Load data
-```{r}
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse) # data formatting 
+library(ggplot2) # plotting library
+library(factoextra) # multidimensional data exploration and visualization 
+library(pheatmap) # heatmap plotting
+
+```
+
+## Multidimensional data
+
+### Loading and printing the data
+
+As in Module 3.1, we will use the data set on yeast transcriptomics from H. Tavares and G. Zeller's workshop, [Exploratory analysis of transcriptomics data in R](https://tavareshugo.github.io/data-carpentry-rnaseq).
+This data set includes data for:
+- Two yeast strains: wild type (“wt”) and atf21del mutant (“mut”),
+- Each has 6 time points of osmotic stress time (0, 15, 30, 60, 120 and 180 minutes)
+- Three replicates for each strain at each time point.
+
+```{r dataimport}
+
+# Import the data
+trans_cts = read.csv("Data/RNAData/counts_transformed_subset.csv") # transcriptomics
+sample_info = read.csv("Data/RNAData/sample_info.csv") # metadata
+
+# Have a look at the data
+head(trans_cts)
+head(sample_info)
+
+```
+
+```{r data-formatting}
+
+# Re-arrange the dataset in a long 'tidy' data set
+trans_cts_long = trans_cts %>% 
+  pivot_longer(cols = wt_0_r1:mut_180_r3, 
+               names_to = "sample", 
+               values_to = "cts")
+
+head(trans_cts_long)
+
+# Add metadata to the transcriptomics data set
+trans_cts_long = full_join(trans_cts_long, sample_info, by = "sample")
+
+```
+
+Here again, we wonder how yeast lineage and time impact gene transcription. We are going to use another approach for multidimensional data exploration: clustering.
+
+### Visualizing data with heatmaps
+
+In Module 1.3 (on plotting), we saw how to generate heatmaps.
+
+```{r heatmap}
+
+ggplot(trans_cts_long, aes(x = sample, y = gene)) + 
+  geom_tile(aes(fill = cts)) + 
+  labs(title = "Heatmap of Gene Transcript Levels", 
+      x = "Experimental conditions",
+      y = "Gene") +
+  theme(axis.text.x = element_text(angle = 90)) # Rotation of the axis labels
+
+```
+
+We can distinguish different color patterns characterizing different experimental conditions. For instance, look at the 3 *mut_15* replicates, and the 3 *wt_15* replicates. They look very similar. 
+
+**Clustering** is an analytical approach allowing us to (objectively) regroup those individuals (or here, experimental conditions) that 'look the same'. Clustering involves two steps:
+- Calculating a distance metrics between each possible data point pair,
+- Identifying clusters of data points within which this distance metrics is short.
+
+## Distance
+
+The `dist()` function is used to calculate the distance metrics.
+
+Here, we want to see which genes tend to be transcripted together.
+
+```{r distance}
+
+# As with principal component analyses, distances are obtained from matrices
+# First we need a matrix with labeled column and row names
+# Create a matrix from our table of counts
+trans_cts_matrix = trans_cts %>% 
+  # make the "gene" column become the rownames of the table
+  column_to_rownames("gene") %>% 
+  # coerce to a matrix
+  as.matrix()
+
+# Have a look at the data
+trans_cts_matrix[1:10, 1:5]
+# We could also have used head()
+
+# Calculate the distance between each data point pair
+gene_dist = dist(trans_cts_matrix)
+
+# Have a look at the distance matrix
+# The factoextra package allows us to do this quickly
+fviz_dist(gene_dist)
+
+```
+
+As for principal component analyses, it is always better to work on standardized data.
+
+```{r distance-scaled}
+
+# The function get_dist from the factoextra package 
+# allows you to standardize the data and get the distance matrix
+# with one line of code
+# Calculate the distance between each data point pair
+gene_dist_scale = get_dist(trans_cts_matrix, stand = T)
+
+# Have a look at the distance matrix
+# The factoextra package allows us to do this quickly
+fviz_dist(gene_dist_scale)
+
+# Extra activity : try without the factoextra package by doing the standardization '
+# in an independent chunk of code
+# You can use the scale() function
+# Look at the original workshop to learn how
+# https://tavareshugo.github.io/data-carpentry-rnaseq
+
+```
+
+Notice that there are different ways to calculate the distance. Look into the help of the `dist()` function with `?dist` to learn more.
+
+## Clustering 
+
+There are different algorithms for clustering. We will learn about hierarchical clustering and k-means clustering. 
+
+### Hierarchical clustering 
+
+Hierarchical clusters are plotted as **dendrograms**. Individuals that are on the same branch are the ones that are closer together (here, genes that tends to be co-transcripted).
+
+```{r hierarchical-clustering}
+
+# Run the hierarchical clustering
+# The function hclust takes the distance matrix at argument
+gene_hclust = hclust(gene_dist_scale, method = "complete") 
+
+# Dendrogram
+plot(gene_hclust)
+
+# Define how many clusters you want to delimit
+n_clusters = 5
+
+# Attribute each gene to a group, in 5 clusters
+cutree(gene_hclust, k = n_clusters)
+
+# Add rectangles delimiting the clusters
+rect.hclust(gene_hclust, k = n_clusters)
+
+# Try with different numbers of clusters by changing the value for n_clusters
+
+```
+
+#### Exercise 1
+
+Try different hierarchical clustering algorithms...
+
+```{r exercise1}
+
+# Look at the different methods 
+
+
+
+# Run the hierarchical clustering
+
+
+
+# Dendrogram
+
+
+
+# Define how many clusters you want to delimit
+
+
+
+# Attribute each gene to a group, in 5 clusters
+
+
+
+# Add rectangles delimiting the clusters
+
+
+
+```
+
+Dendrograms and heatmaps merged together are useful visual tools to explore multidimensional data and potential grouping factors.
+
+```{r dendreo-heatmap}
+
+# Create a heatmap organized by cluster
+heatmap(trans_cts_matrix # Raw data as matrix
+        ) 
+
+# A slightly fancier one
+pheatmap(trans_cts_matrix, # Raw data as matrix
+         cutree_rows = n_clusters # number of clusters
+        ) 
+
+# Look at the x-axis
+# Notice how the data are structured...
+# What is the factor driving clustering?
+
+```
+
+To practice the full procedure, from data import and selection to clustering interpretation, you can check out H. Tavares and G. Zeller's workshop, [Exploratory analysis of transcriptomics data in R](https://tavareshugo.github.io/data-carpentry-rnaseq).
+
+### Bigger dataset
+
+For the rest of the module, let's work on a bigger data set.
+
+```{r big-data-set-prep}
+
+# Clean the environment
+rm(list = ls())
+
+# Import the data
+# Here we use a bigger dataset
+trans_cts = read.csv("Data/RNAData/counts_transformed.csv") # transcriptomics
+sample_info = read.csv("Data/RNAData/sample_info.csv") # metadata
+
+# Randomly select 200 genes so the code runs faster (than with the >6000)
+set.seed(1)
+trans_cts = trans_cts[sample(1:nrow(trans_cts), 200), ]
+rownames(trans_cts) = NULL
+
+# Create a matrix from our table of counts
+trans_cts_matrix = trans_cts %>% 
+  # make the "gene" column become the rownames of the table
+  column_to_rownames("gene") %>% 
+  # coerce to a matrix
+  as.matrix()
+
+# Transpose the matrix to look look how experimental conditions cluster together
+trans_cts_matrix = t(trans_cts_matrix)
+
+# Scale (across columns)
+trans_cts_matrix = scale(trans_cts_matrix)
+
+```
+
+### Optimal numbers of clusters
+
+we can identify the optimal number of clusters using different methods. Notice that the result varies a lot depending on the chosen method. 
+
+```{r nbcluster}
+
+# Optimize the gap statistics (between clusters)
+fviz_nbclust(trans_cts_matrix, kmeans, # Here we use a method based on k-means (see below)
+             method = "gap_stat")
+
+# Optimize the silhouette width (cluster size)
+fviz_nbclust(trans_cts_matrix, kmeans, 
+             method = "silhouette")
+
+```
+
+### K-means
+
+The **k-means** method partitions the data points into *k* groups such that the sum of squares from points to the assigned cluster centers is minimized.
+
+```{r kmeans}
+
+# Run k-means for 2 clusters
+sample_kmeans_3 = kmeans(trans_cts_matrix, 
+                       centers = 3, # Number of clusters 
+                       )
+
+# Plot
+fviz_cluster(sample_kmeans_3, data = trans_cts_matrix)
+
+# Runs k-means for 6 clusters
+sample_kmeans_4 = kmeans(trans_cts_matrix, 
+                         centers = 4)
+
+# Plot
+fviz_cluster(sample_kmeans_4, data = trans_cts_matrix)
+
+# Notice how the data are structured...
+# What is the factor driving clustering?
+
+```
+
+#### Exercise 2
+
+Explore clustering with the R built-in USAArrests data set (data from [sthda.com/english/wiki/print.php?id=234](http://www.sthda.com/english/wiki/print.php?id=234)).
+
+```{r exercise2}
+
+# Environment preparation ############################################################
+
+# Clean the environment
+rm(list = ls())
+
 # Load data
-data("USArrests")
-my_data <- USArrests
+USArrests_data <- USArrests
 
 # Remove any missing value (i.e, NA values for not available)
-my_data <- na.omit(my_data)
+USArrests_data <- na.omit(USArrests_data)
 
 # Scale variables
-my_data <- scale(my_data)
+USArrests_data <- scale(USArrests_data)
+# Note that it became a matrix
 
 # View the firt 3 rows
-head(my_data, n = 3)
-```
+head(USArrests_data, n = 3)
 
-Install & load packages
-```{r}
-# Install factoextra & cluster if needed
-if(!require(factoextra)) install.packages("factoextra")
-if(!require(cluster)) install.packages("cluster")
+# Distance matrix ####################################################################
 
-#Loading required packages
-library("cluster")
-library("factoextra")
-```
-
-plot distance as heat map
-```{r}
-res.dist <- get_dist(USArrests, stand = TRUE, method = "pearson")
-
-fviz_dist(res.dist, 
-   gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+# Get the distance matrix
 
 
-res.dist2 <- get_dist(USArrests, stand = TRUE, method = "euclidean")
 
-fviz_dist(res.dist2, 
-   gradient = list(low = "#E134EB", mid = "white", high = "#f0ec13"))
+# Plot the distance matrix
 
-```
 
-kmeans - determine number of clusters
-```{r}
-fviz_nbclust(my_data, kmeans, nstart = 25,  method = "gap_stat", nboot = 50)
-fviz_nbclust(my_data, kmeans, nstart = 25,  method = "silhouette")
-```
 
-look at clustering results 
-```{r}
-km.res <- kmeans(my_data, 4, nstart = 25)
-fviz_cluster(km.res, data = my_data, ellipse.type = "convex")+theme_minimal()
+# Hierarchical clustering ############################################################
 
-km.res <- kmeans(my_data, 2, nstart = 25)
-fviz_cluster(km.res, data = my_data, ellipse.type = "convex")+theme_minimal()
+# Hierarchical clustering 
 
-```
 
-Alternative to Kmeans PAM - partition around mediod - similar idea just uses medians and not means
-```{r}
-library("cluster")
-pam.res <- pam(my_data, 4)
-
-# Visualize
-fviz_cluster(pam.res)
-```
-
-Hierarchical clustering 
-```{r}
-# Compute dissimilarity matrix
-d <- dist(my_data, method = "euclidean")
-# d<- get_dist(USArrests, stand = TRUE, method = "pearson")
-
-# Hierarchical clustering using Ward's method
-res.hc <- hclust(d, method = "ward.D2" )
 
 # Cut tree into 4 groups
-grp <- cutree(res.hc, k = 4)
+
+
 
 # Visualize
-plot(res.hc, cex = 0.6) # plot tree
-rect.hclust(res.hc, k = 4, border = 2:5) # add rectangle
+
+
+
+# Heatmap with dendrogram
+
+
+
+# Number of clusters #################################################################
+
+
+
+# k-means ############################################################################
+
+# Run k-means procedure
+
+
+
+# Plot
+
+
+
 ```
 
-Alternative code to do the smae thing
-```{r}
-res <- hcut(USArrests, k = 4, stand = TRUE)
+## Solutions to exercises
+
+#### Exercise 1
+
+```{r exercise1solution}
+
+# Look at the different methods 
+?hclust
+
+# Run the hierarchical clustering
+# Try those different options
+gene_hclust = hclust(gene_dist_scale, method = "single") 
+gene_hclust = hclust(gene_dist_scale, method = "average") 
+gene_hclust = hclust(gene_dist_scale, method = "ward.D") 
+gene_hclust = hclust(gene_dist_scale, method = "ward.D2") 
+
+# Repeat the script below for each method...
+
+# Dendrogram
+plot(gene_hclust)
+
+# Define how many clusters you want to delimit
+n_clusters = 5
+
+# Attribute each gene to a group, in 5 clusters
+cutree(gene_hclust, k = n_clusters)
+
+# Add rectangles delimiting the clusters
+rect.hclust(gene_hclust, k = n_clusters)
+
+```
+
+#### Exercise 2 
+
+```{r exercise2soluion}
+
+# Environment preparation ############################################################
+
+# Clean the environment
+rm(list = ls())
+
+# Load data
+USArrests_data <- USArrests
+
+# Remove any missing value (i.e, NA values for not available)
+USArrests_data <- na.omit(USArrests_data)
+
+# Scale variables
+USArrests_data <- scale(USArrests_data)
+# Note that it became a matrix
+
+# View the firt 3 rows
+head(USArrests_data, n = 3)
+
+# Distance matrix ####################################################################
+
+# Get the distance matrix
+res.dist <- get_dist(USArrests_data, stand = T)
+
+# Plot the distance matrix
+fviz_dist(res.dist)
+
+# Hierarchical clustering ############################################################
+
+# Hierarchical clustering 
+res.hc <- hclust(res.dist)
+# You can also explore different methods
+
+# Cut tree into 4 groups
+cutree(res.hc, k = 4)
 
 # Visualize
-fviz_dend(res, rect = TRUE, cex = 0.5,
-          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
-```
-Change linkage method
-```{r}
-res <- hcut(USArrests, k = 4, stand = TRUE,hc_method ="single")
+plot(res.hc, cex = 0.6) 
+rect.hclust(res.hc, k = 4, border = 2:5) # Add rectangle
 
-# Visualize
-fviz_dend(res, rect = TRUE, cex = 0.5,
-          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
-```
+# Heatmap with dendrogram
+pheatmap(USArrests_data, cutree_rows = 4, 
+         fontsize_row = 6 # Adjust the font size to avoid overlap
+         )
 
-```{r}
-res <- hcut(USArrests, k = 4, stand = TRUE,hc_method ="complete")
+# Number of clusters #################################################################
 
-# Visualize
-fviz_dend(res, rect = TRUE, cex = 0.5,
-          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
-```
+fviz_nbclust(USArrests_data, kmeans, method = "gap_stat")
+fviz_nbclust(USArrests_data, kmeans, method = "silhouette")
 
-```{r}
-res <- hcut(USArrests, k = 4, stand = TRUE,hc_method ="average")
+# k-means ############################################################################
 
-# Visualize
-fviz_dend(res, rect = TRUE, cex = 0.5,
-          k_colors = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07"))
+# Run k-means procedure
+km.res <- kmeans(USArrests_data, 2)
+
+# Plot
+fviz_cluster(km.res, data = USArrests_data)
+
 ```
 
-```{r}
-library("RColorBrewer")
-col <- colorRampPalette(brewer.pal(4, "RdYlBu"))(256)
-heatmap(my_data, scale = "none", col =  col)
-```
 
-```{r}
-library("pheatmap")
-pheatmap(my_data, cutree_rows = 4,fontsize_row=6)
-```
+
+## NEEDS TO GO THROUGH THIS, feel like extra material
+
 
 ```{r}
 # Load the data
