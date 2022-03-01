@@ -64,7 +64,7 @@ ggplot(data = dummydata, aes(x = MeanActivity, y = MeanActivityQuali)) +
 ## Testing correlations with logistic regressions
 
 Logistic regressions are used to measure the strength of association 
-between a quantitative variable and a qualitative variable. Logistic regressions belong to generalized linear models. With such models the data are transformed before being fitted, and then use the same approach as classical logistic regressions. With logistical regressions (fit to binomial data), a logit function is applied to the response variable fit the model `Y = 1 / (exp(-(a + b X)))`.
+between a quantitative variable and a qualitative variable. Logistic regressions belong to generalized linear models. With such models the data are transformed before being fitted, and then use the same approach as classical logistic regressions. With logistical regressions (fit to binomial data), a logit function is applied to the response variable fit the model: `logit(Y) = log(Y / (1-Y))`. The inverse logit function can be used to back-transform predictions from the model: `intverse-logit(X) = 1 / (exp(-(a + b X)))`, with a and b the model estimates (parameters).
 Generalized linear regressions are obtained with the `glm()` function.
 
 ```{r lm}
