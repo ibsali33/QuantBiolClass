@@ -1,0 +1,52 @@
+---
+title: "Assignment 2 - multidimensionality"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+## Overview
+
+Investigate one or multiple data sets in order to look for, or better understand, relationships between variables. Include a justification for the data you chose, and what kind of relatinoships in the data you are choosing to explore. Use at least two different approaches for visualizing the data you choose. Conduct one or more statistical test that includes one of the following bootstrapping, permutation, linear modeling, or multidimensional data analysis. 
+
+```{r setup}
+
+```
+
+## Choosing a Data Set
+
+Feel free to select a data set of most interest to you. This could include data you have collected yourself, data from your lab, or publicy available data. Below we include a list of several good sources of data on which to practice your skills.
+
+[TidyTuesday](https://github.com/rfordatascience/tidytuesday)
+Tidy data sets are released weekly in an easy-to-read format for R.  You can scroll down to the DataSets heading and select one or more data set for analysis. Instructions for downloading the data is on the linked dataset page.
+
+[Awesome Public Datasets](https://github.com/awesomedata/awesome-public-datasets)
+Awesome Public Datasets includes a wide variety of data on different subjects
+
+[StatesData]()
+
+```{r readdata}
+
+```
+
+## Define research questions and justificaiton 
+
+
+
+## Plotting
+
+```{r plot1}
+
+```
+
+
+## Statistics and Analysis
+
+```{r stats1}
+
+```
+
+
+### Submissson. 
+Please submit an html/pdf (i.e. preview or knit your notebook). The code should be annotated with proper markup and comments in the text. Show figures for all key steps as needed. 
