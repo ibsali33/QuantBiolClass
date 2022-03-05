@@ -8,7 +8,7 @@ output:
 
 ## Overview
 
-Investigate one or multiple data sets in order to look for, or better understand, relationships between variables. Include a justification for the data you chose, and what kind of relatinoships in the data you are choosing to explore. Use at least two different approaches for visualizing the data you choose. Conduct one or more statistical test that includes one of the following bootstrapping, permutation, linear modeling, or multidimensional data analysis. 
+Investigate one or multiple data sets in order to look for, or better understand, relationships between variables. Include a justification for the data you chose, and what kind of relationships in the data you are choosing to explore. Use at least two different approaches for visualizing the data you choose. Conduct one or more statistical test that includes one of the following bootstrapping, permutation, linear modeling, or multidimensional data analysis. 
 
 ```{r setup}
 
